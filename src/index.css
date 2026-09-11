@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-yatra {
+    font-family: 'Yatra One', 'Rozha One', cursive, sans-serif;
+  }
+  .font-rozha {
+    font-family: 'Rozha One', 'Yatra One', serif;
+  }
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+  .font-martel {
+    font-family: 'Martel', serif;
+  }
+}
+
+/* Custom golden text and borders */
+.gold-text-gradient {
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 30%, #facc15 55%, #ca8a04 80%, #fef9c3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border-gradient {
+  border-image: linear-gradient(to bottom right, #fef08a, #ca8a04, #eab308, #854d0e) 1;
+}
+
+/* Custom scrollbar for royal feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #04120a;
+}
+::-webkit-scrollbar-thumb {
+  background: #854d0e;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ca8a04;
+}

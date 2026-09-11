@@ -1,0 +1,6 @@
+{
+  "name": "Ganapati Aagman",
+  "description": "Celebration and invitation portal for Ganapati Aagman festival.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
