@@ -53,6 +53,34 @@ export default function App() {
     return () => unsubscribe();
   }, [inviteId]);
 
+  // Lock scroll completely on door page so visitors cannot scroll down to preview invitation content
+  useEffect(() => {
+    if (!isOpenDoor) {
+      window.scrollTo(0, 0);
+      const prevHtmlOverflow = document.documentElement.style.overflow;
+      const prevBodyOverflow = document.body.style.overflow;
+      const prevBodyHeight = document.body.style.height;
+      const prevTouchAction = document.body.style.touchAction;
+
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+      document.body.style.touchAction = 'none';
+
+      return () => {
+        document.documentElement.style.overflow = prevHtmlOverflow;
+        document.body.style.overflow = prevBodyOverflow;
+        document.body.style.height = prevBodyHeight;
+        document.body.style.touchAction = prevTouchAction;
+      };
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.touchAction = '';
+    }
+  }, [isOpenDoor]);
+
   const handleOpenDoor = () => {
     setIsOpenDoor(true);
   };
@@ -90,7 +118,11 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#030d07] text-stone-100 overflow-x-hidden font-sans">
+    <div
+      className={`relative min-h-screen bg-[#030d07] text-stone-100 font-sans ${
+        !isOpenDoor ? 'h-screen max-h-screen overflow-hidden' : 'overflow-x-hidden'
+      }`}
+    >
       {/* Falling Marigold & Rose Petals Canvas */}
       <PetalCanvas burstTrigger={burstTrigger} />
 
@@ -104,13 +136,20 @@ export default function App() {
         onOpenCustomize={handleOpenCustomizeWithTab}
       />
 
-      {/* Main Mobile-Optimized Invitation View (Clean, Buttery Smooth, No Phone Mockup) */}
-      <div className="w-full flex justify-center">
+      {/* Main Mobile-Optimized Invitation View (Locked to 1 screen when door is closed) */}
+      <div
+        className={`w-full flex justify-center ${
+          !isOpenDoor ? 'h-screen max-h-screen overflow-hidden pointer-events-none select-none' : ''
+        }`}
+      >
         <InvitationCard
           data={data}
           inviteId={inviteId}
           isSavedInCloud={isSavedInCloud}
-          onReopenDoors={() => setIsOpenDoor(false)}
+          onReopenDoors={() => {
+            window.scrollTo(0, 0);
+            setIsOpenDoor(false);
+          }}
           onOpenCustomize={handleOpenCustomizeWithTab}
           onShowerPetals={handleShowerPetals}
         />

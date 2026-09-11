@@ -14,7 +14,6 @@ import {
   Sparkles,
   Phone,
   Check,
-  Camera,
   Users,
   Flower2
 } from 'lucide-react';
@@ -174,14 +173,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             <DoorClosed className="w-4 h-4 text-amber-400" />
           </button>
 
-          {/* Settings / Customize - Prominently Illuminated Golden Badge */}
+          {/* Settings / Customize - Tiny & Inconspicuous (not noticeable to visitors) */}
           <button
             onClick={() => onOpenCustomize('door')}
-            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.65)] border border-amber-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 font-serif shrink-0"
-            title="सेटिंग्ज व माहिती बदला (Settings: Edit Photos, Names, Venue & Password)"
+            className="p-1.5 rounded-full text-stone-500/20 hover:text-amber-300 transition-opacity duration-300 opacity-20 hover:opacity-100 cursor-pointer shrink-0"
+            title="Settings"
           >
-            <Settings className="w-3.5 h-3.5 text-stone-950 stroke-[2.5] animate-[spin_10s_linear_infinite]" />
-            <span className="font-bold tracking-tight">सेटिंग्ज</span>
+            <Settings className="w-3.5 h-3.5 text-stone-400/40" />
           </button>
         </div>
       </header>
@@ -241,15 +239,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                     || विघ्नहर्ता प्रसन्न ||
                   </span>
                 </div>
-
-                {/* Quick Upload / Edit Button Overlay for Bappa Image */}
-                <button
-                  onClick={() => onOpenCustomize('photos')}
-                  className="cursor-pointer absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
-                  title="बाप्पांचा फोटो बदला (Change Bappa Photo in Settings)"
-                >
-                  <Camera className="w-3.5 h-3.5 text-amber-300" />
-                </button>
               </div>
             </div>
           </div>
@@ -367,15 +356,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                     {data.hostName} (निमंत्रक)
                   </span>
                 </div>
-
-                {/* Quick Upload / Edit Button Overlay for Inviter Image */}
-                <button
-                  onClick={() => onOpenCustomize('photos')}
-                  className="cursor-pointer absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
-                  title="निमंत्रक फोटो बदला (Change Inviter Photo in Settings)"
-                >
-                  <Camera className="w-3.5 h-3.5 text-amber-300" />
-                </button>
               </div>
             </div>
           </div>
@@ -626,16 +606,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 </a>
               </div>
             )}
-            <div className="mt-3 pt-2 border-t border-amber-500/10 flex justify-center">
-              <button
-                type="button"
-                onClick={() => onOpenCustomize('door')}
-                className="cursor-pointer inline-flex items-center gap-1.5 text-[11px] font-serif text-amber-300 hover:text-amber-100 bg-[#072418] hover:bg-[#0c3a28] border border-amber-500/35 px-3 py-1.5 rounded-xl shadow transition active:scale-95"
-              >
-                <span>✏️</span>
-                <span>नाव, संपर्क क्रमांक व निमंत्रण तपशील बदला</span>
-              </button>
-            </div>
           </div>
         </motion.section>
       </main>
@@ -648,20 +618,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           {/* Prominent WhatsApp Share Button */}
           <button
             onClick={handleShareWhatsApp}
-            className="cursor-pointer flex-1 py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-emerald-950 font-serif"
+            className="cursor-pointer flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-emerald-950 font-serif"
           >
             <Share2 className="w-4 h-4" />
             <span>WhatsApp वर पाठवा</span>
-          </button>
-
-          {/* Quick Settings / Customize Button */}
-          <button
-            onClick={() => onOpenCustomize('photos')}
-            className="cursor-pointer py-3 px-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-100 font-serif shrink-0"
-            title="सेटिंग्ज (फोटो, कुटुंब नावे, माहिती बदला)"
-          >
-            <Settings className="w-4 h-4 text-stone-950 stroke-[2.5]" />
-            <span className="font-bold">सेटिंग्ज ⚙️</span>
           </button>
 
           {/* Copy Link */}
