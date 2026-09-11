@@ -105,6 +105,126 @@ class TempleAudioEngine {
   }
 
   /**
+   * Authentic Maharashtrian Tutari (तुतारी) Brass Fanfare
+   * The iconic curved brass horn of Maharashtra heralds Ganapati Bappa's royal aagman
+   */
+  public playTutari() {
+    try {
+      const ctx = this.getContext();
+      const startTime = ctx.currentTime;
+
+      // Master gain for Tutari
+      const tutariMaster = ctx.createGain();
+      tutariMaster.gain.setValueAtTime(0.75, startTime);
+
+      // Acoustic horn formant filter simulating the curved brass bell resonance (~1350Hz)
+      const hornFilter = ctx.createBiquadFilter();
+      hornFilter.type = 'peaking';
+      hornFilter.frequency.setValueAtTime(1350, startTime);
+      hornFilter.Q.setValueAtTime(2.6, startTime);
+      hornFilter.gain.setValueAtTime(7.5, startTime);
+
+      // Warm lowpass filter to remove digital harshness while keeping brilliant brass bite
+      const highFilter = ctx.createBiquadFilter();
+      highFilter.type = 'lowpass';
+      highFilter.frequency.setValueAtTime(4600, startTime);
+
+      hornFilter.connect(highFilter);
+      highFilter.connect(tutariMaster);
+      tutariMaster.connect(ctx.destination);
+
+      // Helper to synthesize authentic brass horn tone with lip-buzz harmonics and formant dynamics
+      const playBrassTone = (
+        freq: number,
+        start: number,
+        dur: number,
+        glideFrom?: number,
+        hasVibrato = false
+      ) => {
+        // Oscillator 1: Sawtooth wave for brass buzz & overtone series
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sawtooth';
+
+        // Oscillator 2: Triangle wave for horn acoustic body weight
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'triangle';
+
+        // Gain envelope for the tone
+        const noteGain = ctx.createGain();
+
+        // Lip pressure / pitch scheduling
+        if (glideFrom) {
+          osc1.frequency.setValueAtTime(glideFrom, start);
+          osc1.frequency.exponentialRampToValueAtTime(freq, start + 0.16);
+          osc2.frequency.setValueAtTime(glideFrom, start);
+          osc2.frequency.exponentialRampToValueAtTime(freq * 0.5, start + 0.16);
+        } else {
+          osc1.frequency.setValueAtTime(freq, start);
+          osc2.frequency.setValueAtTime(freq * 0.5, start); // sub-octave warmth
+        }
+
+        // Natural lip vibrato on sustained notes (5.6 Hz breath modulation)
+        if (hasVibrato) {
+          const lfo = ctx.createOscillator();
+          const lfoGain = ctx.createGain();
+          lfo.frequency.setValueAtTime(5.6, start);
+          lfoGain.gain.setValueAtTime(0, start);
+          lfoGain.gain.setValueAtTime(0, start + 0.22);
+          lfoGain.gain.linearRampToValueAtTime(14, start + 0.55);
+          lfo.connect(lfoGain);
+          lfoGain.connect(osc1.frequency);
+          lfo.start(start);
+          lfo.stop(start + dur + 0.2);
+        }
+
+        // Brass envelope: sharp tongue attack (0.02s), sustained air pressure, natural decay
+        noteGain.gain.setValueAtTime(0.0001, start);
+        noteGain.gain.linearRampToValueAtTime(0.38, start + 0.025);
+        noteGain.gain.setValueAtTime(0.34, start + dur * 0.72);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+        osc1.connect(noteGain);
+        osc2.connect(noteGain);
+        noteGain.connect(hornFilter);
+
+        osc1.start(start);
+        osc2.start(start);
+        osc1.stop(start + dur + 0.05);
+        osc2.stop(start + dur + 0.05);
+      };
+
+      // The signature Maharashtrian Tutari proclamation:
+      // 1. Initial soaring herald call (A4 -> D5)
+      playBrassTone(587.33, startTime, 0.48, 392.0); // D5
+
+      // 2. The traditional triplet herald flourish: "Ta - Ta - Ta - Taaaa!"
+      const fStart = startTime + 0.58;
+      playBrassTone(587.33, fStart, 0.12);        // D5
+      playBrassTone(739.99, fStart + 0.14, 0.12); // F#5
+      playBrassTone(880.00, fStart + 0.28, 0.14); // A5
+
+      // 3. The Grand Triumphant High Climax Blast (High D6) with sustained vibrato
+      const climaxStart = fStart + 0.44;
+      playBrassTone(1174.66, climaxStart, 1.85, 880.0, true); // High D6
+
+      // Auspicious temple chime / shimmer at the climax
+      const chimeOsc = ctx.createOscillator();
+      const chimeGain = ctx.createGain();
+      chimeOsc.type = 'sine';
+      chimeOsc.frequency.setValueAtTime(2349.32, climaxStart); // D7
+      chimeGain.gain.setValueAtTime(0.15, climaxStart);
+      chimeGain.gain.exponentialRampToValueAtTime(0.0001, climaxStart + 1.2);
+      chimeOsc.connect(chimeGain);
+      chimeGain.connect(ctx.destination);
+      chimeOsc.start(climaxStart);
+      chimeOsc.stop(climaxStart + 1.3);
+
+    } catch (e) {
+      console.warn('Tutari audio error', e);
+    }
+  }
+
+  /**
    * Soothing meditative Tanpura & devotional drone
    */
   public startDevotionalAmbient() {

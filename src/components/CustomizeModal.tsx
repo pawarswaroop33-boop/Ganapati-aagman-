@@ -17,12 +17,13 @@ import {
 } from 'lucide-react';
 import { InvitationDetails, FamilyMember } from '../types';
 import { defaultInvitationData } from '../data/defaultData';
+import { compressImageFile } from '../utils/firebase';
 
 interface CustomizeModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: InvitationDetails;
-  onSave: (updated: InvitationDetails) => void;
+  onSave: (updated: InvitationDetails) => Promise<void> | void;
   initialTab?: 'photos' | 'family' | 'details';
 }
 
@@ -57,27 +58,43 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const [activeTab, setActiveTab] = useState<'photos' | 'family' | 'details'>(initialTab);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('');
+  const [isCompressing, setIsCompressing] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setFormData({ ...data });
       setActiveTab(initialTab);
+      setSaveSuccess(false);
+      setUploadError(null);
     }
   }, [isOpen, initialTab, data]);
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (
+  const handleFileUpload = async (
     field: 'bappaImageUrl' | 'inviterImageUrl',
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
+    if (!file) return;
+
+    setUploadError(null);
+    setIsCompressing(field);
+    try {
+      // Compress to high-quality, lightweight base64 Data URL so it persists in Firebase Firestore
+      const compressedDataUrl = await compressImageFile(file, 1000, 0.82);
       setFormData((prev) => ({
         ...prev,
-        [field]: url,
+        [field]: compressedDataUrl,
       }));
+    } catch (err) {
+      console.error('Image compression error:', err);
+      setUploadError(err instanceof Error ? err.message : 'फोटो लोड करताना त्रुटी आली');
+    } finally {
+      setIsCompressing(null);
     }
   };
 
@@ -112,10 +129,20 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
     }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
-    onClose();
+    setIsSaving(true);
+    try {
+      await onSave(formData);
+      setSaveSuccess(true);
+      setTimeout(() => {
+        onClose();
+      }, 700);
+    } catch (err) {
+      console.error('Error saving invitation:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -198,6 +225,21 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
           {/* ======================================================== */}
           {activeTab === 'photos' && (
             <div className="space-y-4">
+              {/* Cloud Persistence Assurance Banner */}
+              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2 text-[11px] text-amber-200/90 font-serif">
+                <span className="text-amber-400 mt-0.5">☁️</span>
+                <div>
+                  <span className="font-bold text-amber-300">क्लाउडमध्ये कायमस्वरूपी सुरक्षित: </span>
+                  आपण अपलोड केलेले दोन्ही फोटो थेट Firebase डेटाबेसमध्ये सेव्ह होतात. इतर कोणत्याही मोबाईलवरून निमंत्रण लिंक उघडल्यास फोटो दिसतील.
+                </div>
+              </div>
+
+              {uploadError && (
+                <div className="p-2 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs font-serif">
+                  ⚠️ {uploadError}
+                </div>
+              )}
+
               {/* UPLOAD 1: GANAPATI BAPPA'S IMAGE */}
               <div className="p-3.5 rounded-2xl bg-[#04120a] border border-amber-500/35 shadow-inner">
                 <div className="flex items-center gap-2 mb-2.5">
@@ -225,16 +267,27 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                     <div className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-amber-200 py-0.5 font-serif">
                       बाप्पा
                     </div>
+                    {isCompressing === 'bappaImageUrl' && (
+                      <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-[9px] text-amber-300 font-serif p-1 text-center">
+                        <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mb-1" />
+                        <span>अपलोड होत आहे...</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Upload Controls */}
                   <div className="flex-1 space-y-2">
-                    <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-dashed border-amber-400 text-amber-300 cursor-pointer hover:bg-amber-500/30 transition text-xs font-bold font-serif active:scale-95">
+                    <label className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-dashed text-xs font-bold font-serif transition active:scale-95 cursor-pointer ${
+                      isCompressing === 'bappaImageUrl'
+                        ? 'bg-stone-800 text-stone-400 border-stone-600 pointer-events-none'
+                        : 'bg-gradient-to-r from-amber-500/20 to-amber-600/30 border-amber-400 text-amber-300 hover:bg-amber-500/30'
+                    }`}>
                       <Upload className="w-4 h-4 text-amber-400" />
-                      <span>बाप्पांचा नवीन फोटो निवडा</span>
+                      <span>{isCompressing === 'bappaImageUrl' ? 'फोटो तयार होत आहे...' : 'बाप्पांचा नवीन फोटो निवडा'}</span>
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={isCompressing !== null}
                         className="hidden"
                         onChange={(e) => handleFileUpload('bappaImageUrl', e)}
                       />
@@ -306,16 +359,27 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                     <div className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-amber-200 py-0.5 font-serif">
                       निमंत्रक
                     </div>
+                    {isCompressing === 'inviterImageUrl' && (
+                      <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-[9px] text-amber-300 font-serif p-1 text-center">
+                        <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mb-1" />
+                        <span>अपलोड होत आहे...</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Upload Controls */}
                   <div className="flex-1 space-y-2">
-                    <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-dashed border-amber-400 text-amber-300 cursor-pointer hover:bg-amber-500/30 transition text-xs font-bold font-serif active:scale-95">
+                    <label className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-dashed text-xs font-bold font-serif transition active:scale-95 cursor-pointer ${
+                      isCompressing === 'inviterImageUrl'
+                        ? 'bg-stone-800 text-stone-400 border-stone-600 pointer-events-none'
+                        : 'bg-gradient-to-r from-amber-500/20 to-amber-600/30 border-amber-400 text-amber-300 hover:bg-amber-500/30'
+                    }`}>
                       <Upload className="w-4 h-4 text-amber-400" />
-                      <span>निमंत्रक फोटो निवडा / बदला</span>
+                      <span>{isCompressing === 'inviterImageUrl' ? 'फोटो तयार होत आहे...' : 'निमंत्रक फोटो निवडा / बदला'}</span>
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={isCompressing !== null}
                         className="hidden"
                         onChange={(e) => handleFileUpload('inviterImageUrl', e)}
                       />
@@ -584,10 +648,31 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/60 transition active:scale-95"
+                disabled={isSaving || isCompressing !== null}
+                className={`px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition active:scale-95 ${
+                  saveSuccess
+                    ? 'bg-emerald-500 text-stone-950 shadow-emerald-950/60'
+                    : isSaving
+                    ? 'bg-amber-600/70 text-stone-950 shadow-amber-950/60 cursor-wait'
+                    : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 shadow-amber-950/60'
+                }`}
               >
-                <Save className="w-3.5 h-3.5 text-stone-950" />
-                <span>जतन करा (Save)</span>
+                {isSaving ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
+                    <span>क्लाउडमध्ये जतन होत आहे...</span>
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <span>✓</span>
+                    <span>क्लाउडवर सुरक्षित झाले!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5 text-stone-950" />
+                    <span>जतन करा (Save to Cloud)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

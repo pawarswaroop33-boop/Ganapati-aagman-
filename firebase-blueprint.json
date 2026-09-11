@@ -1,0 +1,34 @@
+{
+  "entities": {
+    "invitation": {
+      "title": "Invitation",
+      "description": "Ganeshotsav invitation card details with Bappa photo, inviter photo, family members, schedule, and venue",
+      "type": "object",
+      "properties": {
+        "familyHeading": { "type": "string", "description": "Greeting heading from the family" },
+        "familyName": { "type": "string", "description": "Name of the family hosting Bappa" },
+        "hostName": { "type": "string", "description": "Primary host name" },
+        "venueName": { "type": "string", "description": "Venue residence or hall name" },
+        "fullAddress": { "type": "string", "description": "Complete postal address" },
+        "landmark": { "type": "string", "description": "Nearby landmark" },
+        "googleMapsUrl": { "type": "string", "description": "Google Maps navigation URL" },
+        "startDate": { "type": "string", "description": "Aagman start date" },
+        "endDate": { "type": "string", "description": "Visarjan end date" },
+        "tithi": { "type": "string", "description": "Hindu calendar tithi" },
+        "invitationMessage": { "type": "string", "description": "Devotional invitation text" },
+        "closingQuote": { "type": "string", "description": "Closing benediction quote" },
+        "contactNumber": { "type": "string", "description": "Family contact phone number" },
+        "bappaImageUrl": { "type": "string", "description": "Image URL or compressed image data of Bappa" },
+        "inviterImageUrl": { "type": "string", "description": "Image URL or compressed image data of host/family" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "required": ["familyName", "bappaImageUrl"]
+    }
+  },
+  "firestore": {
+    "/invitations/{invitationId}": {
+      "schema": "invitation",
+      "description": "Auspicious Ganeshotsav invitations shareable with guests and family across devices"
+    }
+  }
+}

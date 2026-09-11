@@ -26,40 +26,29 @@ interface InvitationCardProps {
   onReopenDoors: () => void;
   onOpenCustomize: (tab?: 'photos' | 'family' | 'details') => void;
   onShowerPetals: () => void;
+  inviteId?: string;
+  isSavedInCloud?: boolean;
 }
 
-// Buttery smooth "Blur to Clear" scroll reveal animation
-const blurRevealVariant = {
-  hidden: {
-    opacity: 0,
-    filter: 'blur(14px)',
-    y: 35,
-    scale: 0.97,
+// Buttery smooth "Upcoming is blurred -> transit to clear when reached" scroll animation
+const upcomingBlurVariant = {
+  blurred: {
+    opacity: 0.35,
+    filter: 'blur(10px)',
+    y: 24,
+    scale: 0.98,
+    transition: {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1],
+    },
   },
-  visible: {
+  focused: {
     opacity: 1,
     filter: 'blur(0px)',
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.85,
-      ease: [0.16, 1, 0.3, 1], // Smooth cubic-bezier curve
-    },
-  },
-};
-
-const itemRevealVariant = {
-  hidden: {
-    opacity: 0,
-    filter: 'blur(8px)',
-    y: 15,
-  },
-  visible: {
-    opacity: 1,
-    filter: 'blur(0px)',
-    y: 0,
-    transition: {
-      duration: 0.6,
+      duration: 0.65,
       ease: [0.16, 1, 0.3, 1],
     },
   },
@@ -70,6 +59,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   onReopenDoors,
   onOpenCustomize,
   onShowerPetals,
+  inviteId,
+  isSavedInCloud,
 }) => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -77,6 +68,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   useEffect(() => {
     setIsPlayingAudio(templeAudio.isAmbientActive());
   }, []);
+
+  const getShareableUrl = () => {
+    if (inviteId && inviteId !== 'main') {
+      return `${window.location.origin}${window.location.pathname}?invite=${encodeURIComponent(inviteId)}`;
+    }
+    return window.location.href;
+  };
 
   const toggleAudio = () => {
     if (isPlayingAudio) {
@@ -90,6 +88,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   };
 
   const handleShareWhatsApp = () => {
+    const shareUrl = getShareableUrl();
     const text = encodeURIComponent(
       `🚩 *|| श्री गणेशाय नमः ||*\n\n` +
       `*बाप्पाचे आगमन २०२५*\n` +
@@ -99,13 +98,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       `📍 ठिकाण: ${data.venueName}, ${data.fullAddress}\n\n` +
       `आपण सर्वांनी सपरिवार उपस्थित राहून बाप्पांचे दर्शन व प्रसादाचा लाभ घ्यावा ही नम्र विनंती!\n\n` +
       `— ${data.familyName}\n\n` +
-      `डिजिटल निमंत्रण पत्रिका पाहण्यासाठी येथे क्लिक करा:\n${window.location.href}`
+      `डिजिटल निमंत्रण पत्रिका पाहण्यासाठी येथे क्लिक करा:\n${shareUrl}`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(getShareableUrl());
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };
@@ -130,13 +129,32 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             卐
           </span>
           <div>
-            <p className="text-xs font-serif tracking-wider text-[#fef08a] font-bold drop-shadow">
-              || श्री गणेशाय नमः ||
+            <p className="text-xs font-serif tracking-wider text-[#fef08a] font-bold drop-shadow flex items-center gap-1.5">
+              <span>|| श्री गणेशाय नमः ||</span>
+              {isSavedInCloud && (
+                <span className="inline-flex items-center gap-1 text-[9px] font-sans font-medium text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.2 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  क्लाउड
+                </span>
+              )}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Tutari Fanfare & Auspicious Flower Shower */}
+          <button
+            onClick={() => {
+              templeAudio.playTutari();
+              onShowerPetals();
+            }}
+            className="p-1.5 px-2 rounded-full bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 transition active:scale-95 cursor-pointer flex items-center gap-1 shadow-sm"
+            title="तुतारीचा गजर व पुष्पवृष्टी (Play Tutari Fanfare & Flower Shower)"
+          >
+            <span className="text-sm leading-none">📯</span>
+            <span className="text-[10px] font-serif font-bold text-amber-200 hidden sm:inline">तुतारी</span>
+          </button>
+
           {/* Temple Bell */}
           <button
             onClick={() => {
@@ -192,13 +210,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       <main className="w-full max-w-md px-3.5 sm:px-4 pt-3.5 space-y-7">
         {/* ============================================================ */}
         {/* SECTION 1: HERO COVER WITH BAPPA'S IMAGE (1st Image)        */}
+        {/* Clear on load so the user sees it immediately after doors    */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-center p-4 sm:p-5 pt-6"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-center p-4 sm:p-5 pt-6 will-change-transform"
         >
           {/* Subtle golden ambient glow */}
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -225,7 +243,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <img
                   src={data.bappaImageUrl}
                   alt="श्री गणपती बाप्पा (Ganapati Bappa)"
-                  className="w-full h-full object-cover object-center transform transition duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transform transition duration-500 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       'https://images.unsplash.com/photo-1567591974584-f1832d98c6a0?auto=format&fit=crop&w=1200&q=80';
@@ -267,13 +285,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
         {/* ============================================================ */}
         {/* SECTION 2: सस्नेह आमंत्रण INVITATION PROSE                   */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
         >
           <div className="flex items-center justify-center gap-3 mb-2.5">
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-amber-400" />
@@ -292,35 +311,53 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           </p>
 
           <div className="mt-4 pt-3.5 border-t border-amber-500/20 grid grid-cols-4 gap-1 text-center">
-            <div>
-              <span className="text-amber-400 text-base">🌺</span>
+            <button
+              type="button"
+              onClick={onShowerPetals}
+              className="cursor-pointer group flex flex-col items-center hover:scale-105 active:scale-95 transition"
+              title="पुष्पवृष्टी करा (Shower Flowers)"
+            >
+              <span className="text-amber-400 text-lg block group-hover:animate-bounce">🌺</span>
               <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">पुष्पवृष्टी</p>
-            </div>
-            <div>
-              <span className="text-amber-400 text-base">🪔</span>
-              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">दीपोत्सव</p>
-            </div>
-            <div>
-              <span className="text-amber-400 text-base">🥟</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                templeAudio.playTutari();
+                onShowerPetals();
+              }}
+              className="cursor-pointer group flex flex-col items-center hover:scale-105 active:scale-95 transition"
+              title="तुतारीचा गजर (Play Tutari)"
+            >
+              <span className="text-amber-400 text-lg block group-hover:scale-110">📯</span>
+              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">तुतारी गजर</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => templeAudio.ringBell()}
+              className="cursor-pointer group flex flex-col items-center hover:scale-105 active:scale-95 transition"
+              title="घंटा नाद (Ring Bell)"
+            >
+              <span className="text-amber-400 text-lg block group-hover:rotate-12 transition">🔔</span>
+              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">घंटा नाद</p>
+            </button>
+            <div className="flex flex-col items-center opacity-90">
+              <span className="text-amber-400 text-lg block">🥟</span>
               <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">मोदक प्रसाद</p>
-            </div>
-            <div>
-              <span className="text-amber-400 text-base">🥁</span>
-              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">ढोल-ताशा</p>
             </div>
           </div>
         </motion.section>
 
         {/* ============================================================ */}
         {/* SECTION 3: INVITATOR'S IMAGE & ALL FAMILY MEMBERS BELOW IT   */}
-        {/* (Cleanly displayed; all name management is inside Settings)  */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
         >
           {/* Header */}
           <div className="flex items-center justify-center gap-2 mb-1.5">
@@ -341,7 +378,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <img
                   src={data.inviterImageUrl}
                   alt={data.hostName}
-                  className="w-full h-full object-cover object-top transform transition duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transform transition duration-500 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80';
@@ -376,12 +413,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               <span>कुटुंबातील सर्व सदस्य</span>
             </div>
 
-            {/* List of All Family Members (Pristinely rendered without inline clutter) */}
+            {/* List of All Family Members */}
             <div className="space-y-2 text-left">
               {data.familyMembers.map((member, idx) => (
-                <motion.div
+                <div
                   key={member.id || idx}
-                  variants={itemRevealVariant}
                   className="p-2.5 rounded-xl bg-[#04120a]/90 border border-amber-500/25 flex items-center justify-between gap-2 hover:border-amber-500/40 transition shadow-sm"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -403,7 +439,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                   <span className="text-[10px] sm:text-[11px] text-amber-300 font-serif bg-amber-950/70 border border-amber-500/30 px-2 py-0.5 rounded-lg shrink-0 font-medium">
                     {member.relation}
                   </span>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -411,13 +447,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
         {/* ============================================================ */}
         {/* SECTION 4: ALL EVENTS SCHEDULE / गणेश उत्सव                  */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl will-change-[filter,opacity,transform]"
         >
           <div className="text-center mb-4">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-semibold font-serif mb-1.5">
@@ -434,9 +471,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
           <div className="space-y-2.5">
             {data.schedule.map((item, index) => (
-              <motion.div
+              <div
                 key={index}
-                variants={itemRevealVariant}
                 className="rounded-xl bg-[#04120a]/80 border border-amber-500/20 p-3 flex items-start justify-between gap-2.5 hover:border-amber-500/40 transition"
               >
                 <div className="flex items-start gap-2.5 min-w-0">
@@ -461,7 +497,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <span className="text-[11px] font-bold text-amber-400 font-serif bg-amber-950/70 px-2 py-0.5 rounded-lg border border-amber-500/30 shrink-0">
                   {item.time}
                 </span>
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -479,13 +515,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
         {/* ============================================================ */}
         {/* SECTION 5: ONE-TAP GET DIRECTIONS / ठिकाण                   */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
         >
           <div className="flex items-center justify-center gap-2 mb-1.5">
             <MapPin className="w-4 h-4 text-amber-400 animate-bounce" />
@@ -527,13 +564,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
         {/* ============================================================ */}
         {/* SECTION 6: आगमनाची तयारी GALLERY                            */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl will-change-[filter,opacity,transform]"
         >
           <div className="text-center mb-3.5">
             <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -552,9 +590,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
           <div className="grid grid-cols-2 gap-2">
             {data.preparations.map((item) => (
-              <motion.div
+              <div
                 key={item.id}
-                variants={itemRevealVariant}
                 className="group relative rounded-xl overflow-hidden aspect-square border border-amber-500/30 bg-stone-900 shadow-md"
               >
                 <img
@@ -574,20 +611,21 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                     {item.description}
                   </p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </motion.section>
 
         {/* ============================================================ */}
         {/* SECTION 7: CLOSING BENEDICTION                               */}
+        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
         {/* ============================================================ */}
         <motion.section
-          variants={blurRevealVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg"
+          variants={upcomingBlurVariant}
+          initial="blurred"
+          whileInView="focused"
+          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg will-change-[filter,opacity,transform]"
         >
           <span className="text-2xl block mb-1.5">🙏</span>
           <p className="text-xs sm:text-sm font-serif italic text-amber-100 font-medium leading-relaxed max-w-xs mx-auto">

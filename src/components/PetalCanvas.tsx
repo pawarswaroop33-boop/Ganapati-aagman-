@@ -1,132 +1,195 @@
 import React, { useEffect, useRef } from 'react';
 
-interface Petal {
-  x: number;
+interface FlowerPetal {
+  baseX: number;
   y: number;
   size: number;
-  speedX: number;
   speedY: number;
+  swayPhase: number;
+  swaySpeed: number;
+  swayAmp: number;
   rotation: number;
   rotationSpeed: number;
+  tiltPhase: number;
+  tiltSpeed: number;
   color: string;
+  veinColor: string;
   opacity: number;
-  shape: 'marigold' | 'rose' | 'sparkle';
+  isShower: boolean;
+  type: 'marigold' | 'rose' | 'jasmine';
 }
 
 interface PetalCanvasProps {
-  burstTrigger?: number; // whenever this changes, produce a shower burst!
+  burstTrigger?: number;
 }
 
 export const PetalCanvas: React.FC<PetalCanvasProps> = ({ burstTrigger }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const petalsRef = useRef<Petal[]>([]);
+  const petalsRef = useRef<FlowerPetal[]>([]);
   const animFrameRef = useRef<number | null>(null);
 
-  const colors = {
-    marigold: ['#f59e0b', '#fbbf24', '#d97706', '#fef08a'],
-    rose: ['#dc2626', '#e11d48', '#b91c1c', '#f43f5e'],
-    sparkle: ['#fbbf24', '#fef08a', '#ffffff'],
-  };
+  // Authentic floral palette: Marigold (झेंडू), Rose (गुलाब), and Saffron/Jasmine (शेवंती)
+  const petalPalettes = [
+    { color: '#f97316', veinColor: 'rgba(234, 88, 12, 0.4)', type: 'marigold' as const }, // Saffron Marigold
+    { color: '#fbbf24', veinColor: 'rgba(217, 119, 6, 0.35)', type: 'marigold' as const }, // Golden Marigold
+    { color: '#dc2626', veinColor: 'rgba(185, 28, 28, 0.4)', type: 'rose' as const },     // Auspicious Red Rose
+    { color: '#e11d48', veinColor: 'rgba(159, 18, 57, 0.35)', type: 'rose' as const },     // Deep Pink Gulab
+    { color: '#fef08a', veinColor: 'rgba(202, 138, 4, 0.3)', type: 'jasmine' as const },   // Shevanti Cream
+  ];
 
-  const createPetal = (width: number, height: number, isBurst = false): Petal => {
-    const types: Array<'marigold' | 'rose' | 'sparkle'> = ['marigold', 'rose', 'rose', 'marigold', 'sparkle'];
-    const shape = types[Math.floor(Math.random() * types.length)];
-    const colorPalette = colors[shape];
-    const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+  const createPetal = (
+    width: number,
+    height: number,
+    isShower = false,
+    staggerIndex = 0
+  ): FlowerPetal => {
+    const palette = petalPalettes[Math.floor(Math.random() * petalPalettes.length)];
+    const size = isShower
+      ? Math.random() * 5 + 7   // 7px to 12px for shower petals
+      : Math.random() * 4 + 6;  // 6px to 10px for ambient petals
+
+    // Shower petals enter from above the viewport in a staggered cascade
+    const y = isShower
+      ? -20 - (staggerIndex * 14) - Math.random() * 40
+      : Math.random() * height;
+
+    const baseX = Math.random() * width;
 
     return {
-      x: Math.random() * width,
-      y: isBurst ? height * 0.5 + (Math.random() - 0.5) * 150 : -20 - Math.random() * 50,
-      size: shape === 'sparkle' ? Math.random() * 4 + 2 : Math.random() * 10 + 8,
-      speedX: (Math.random() - 0.5) * (isBurst ? 5 : 1.5),
-      speedY: isBurst ? (Math.random() - 0.8) * 6 : Math.random() * 1.5 + 0.8,
+      baseX,
+      y,
+      size,
+      speedY: isShower ? Math.random() * 0.9 + 1.6 : Math.random() * 0.8 + 0.9,
+      swayPhase: Math.random() * Math.PI * 2,
+      swaySpeed: Math.random() * 0.03 + 0.02,
+      swayAmp: Math.random() * 22 + 14,
       rotation: Math.random() * 360,
-      rotationSpeed: (Math.random() - 0.5) * 2,
-      color,
-      opacity: Math.random() * 0.6 + 0.3,
-      shape,
+      rotationSpeed: (Math.random() - 0.5) * 1.8,
+      tiltPhase: Math.random() * Math.PI * 2,
+      tiltSpeed: Math.random() * 0.04 + 0.025,
+      color: palette.color,
+      veinColor: palette.veinColor,
+      opacity: Math.random() * 0.25 + 0.7,
+      isShower,
+      type: palette.type,
     };
   };
 
-  const triggerBurst = () => {
+  // Triggers a delicate, non-glitchy, super smooth shower of flower petals
+  const triggerFlowerShower = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const width = canvas.width;
-    const height = canvas.height;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-    // Add 45 burst petals
-    for (let i = 0; i < 45; i++) {
-      petalsRef.current.push(createPetal(width, height, true));
+    // 28-32 petals provide a rich yet elegant auspicious flower rain
+    const count = width < 640 ? 24 : 32;
+    for (let i = 0; i < count; i++) {
+      petalsRef.current.push(createPetal(width, height, true, i));
     }
   };
 
   useEffect(() => {
     if (burstTrigger && burstTrigger > 0) {
-      triggerBurst();
+      triggerFlowerShower();
     }
   }, [burstTrigger]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
 
-    // Initial ambient petals
-    const initialCount = window.innerWidth < 640 ? 20 : 35;
+    const setupCanvas = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    };
+
+    setupCanvas();
+    window.addEventListener('resize', setupCanvas, { passive: true });
+
+    // Calm, serene ambient flower petals (10 on mobile, 16 on desktop)
+    const ambientCount = width < 640 ? 10 : 16;
     petalsRef.current = [];
-    for (let i = 0; i < initialCount; i++) {
-      const p = createPetal(canvas.width, canvas.height);
-      p.y = Math.random() * canvas.height;
-      petalsRef.current.push(p);
+    for (let i = 0; i < ambientCount; i++) {
+      petalsRef.current.push(createPetal(width, height, false));
     }
 
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let lastTime = performance.now();
+
+    const render = (time: number) => {
+      // Delta time limiter to ensure 60fps / 120fps buttery smoothness without jumps
+      const dt = Math.min((time - lastTime) / 16.66, 1.8);
+      lastTime = time;
+
+      ctx.clearRect(0, 0, width, height);
 
       const petals = petalsRef.current;
       for (let i = petals.length - 1; i >= 0; i--) {
         const p = petals[i];
 
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.globalAlpha = p.opacity;
-        ctx.fillStyle = p.color;
+        // Update aerodynamic position
+        p.swayPhase += p.swaySpeed * dt;
+        p.tiltPhase += p.tiltSpeed * dt;
+        p.rotation += p.rotationSpeed * dt;
+        p.y += p.speedY * dt;
+        // Mild subtle horizontal breeze drift
+        p.baseX += 0.15 * dt;
 
-        if (p.shape === 'sparkle') {
-          // 4-point star sparkle
+        // Calculate smooth non-jittering screen X with natural aerodynamic oscillation
+        const curX = p.baseX + Math.sin(p.swayPhase) * p.swayAmp;
+        const curTilt = Math.cos(p.tiltPhase); // 3D tumbling flip simulation
+
+        // Skip drawing if completely off-screen above
+        if (p.y > -20) {
+          ctx.save();
+          ctx.translate(curX, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          // Scale Y to simulate 3D petal flipping and rotating in air
+          ctx.scale(1, Math.abs(curTilt) > 0.1 ? curTilt : 0.1);
+          ctx.globalAlpha = p.opacity;
+
+          // Draw organic curved flower petal silhouette
+          ctx.fillStyle = p.color;
           ctx.beginPath();
-          ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+          ctx.moveTo(0, -p.size);
+          ctx.bezierCurveTo(p.size * 0.75, -p.size * 0.5, p.size * 0.8, p.size * 0.6, 0, p.size);
+          ctx.bezierCurveTo(-p.size * 0.8, p.size * 0.6, -p.size * 0.75, -p.size * 0.5, 0, -p.size);
           ctx.fill();
-        } else {
-          // Petal oval shape
+
+          // Subtle organic vein/fold for realistic botanical texture
+          ctx.strokeStyle = p.veinColor;
+          ctx.lineWidth = 0.9;
           ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(0, -p.size * 0.65);
+          ctx.lineTo(0, p.size * 0.7);
+          ctx.stroke();
+
+          ctx.restore();
         }
 
-        ctx.restore();
-
-        p.x += p.speedX;
-        p.y += p.speedY;
-        p.rotation += p.rotationSpeed;
-
-        // Reset or remove
-        if (p.y > canvas.height + 30) {
-          if (petals.length > 35) {
+        // Clean recycling / exit logic
+        if (p.y > height + 35) {
+          if (p.isShower) {
+            // Once a shower petal finishes its majestic fall, gracefully remove it
             petals.splice(i, 1);
           } else {
+            // Ambient petals recycle from top smoothly
             p.y = -20;
-            p.x = Math.random() * canvas.width;
-            p.speedY = Math.random() * 1.5 + 0.8;
+            p.baseX = Math.random() * width;
+            p.speedY = Math.random() * 0.8 + 0.9;
+            p.swayPhase = Math.random() * Math.PI * 2;
           }
         }
       }
@@ -137,7 +200,7 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ burstTrigger }) => {
     animFrameRef.current = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', setupCanvas);
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
       }
@@ -147,7 +210,7 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ burstTrigger }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-40"
+      className="fixed inset-0 pointer-events-none z-40 will-change-transform select-none"
       style={{ width: '100%', height: '100%' }}
     />
   );
