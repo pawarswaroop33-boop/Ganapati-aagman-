@@ -2,7 +2,7 @@ export interface FamilyMember {
   id: string;
   name: string;
   relation: string;
-  photoUrl: string;
+  photoUrl?: string;
   blessing?: string;
 }
 
@@ -22,9 +22,9 @@ export interface PreparationPhoto {
 }
 
 export interface InvitationDetails {
-  familyHeading: string; // e.g. "देशपांडे परिवाराकडून सस्नेह आमंत्रण"
+  familyHeading: string; // e.g. "देशपांडे परिवाराकडून"
   familyName: string; // e.g. "देशपांडे परिवार"
-  hostName: string; // e.g. "राजेश देशपांडे"
+  hostName: string; // e.g. "श्री. राजेश देशपांडे"
   venueName: string; // e.g. "देशपांडे निवास"
   fullAddress: string;
   landmark: string;
@@ -35,8 +35,9 @@ export interface InvitationDetails {
   invitationMessage: string;
   closingQuote: string;
   contactNumber: string;
-  bappaImageUrl: string;
-  familyMembers: FamilyMember[];
+  bappaImageUrl: string; // 1st Upload: Ganapati Bappa's image
+  inviterImageUrl: string; // 2nd Upload: Invitator's / Family's image
+  familyMembers: FamilyMember[]; // All family members whose names show below inviter image
   schedule: ScheduleEvent[];
   preparations: PreparationPhoto[];
 }

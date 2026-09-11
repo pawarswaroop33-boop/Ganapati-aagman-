@@ -3,7 +3,7 @@ import { InvitationDetails } from '../types';
 export const defaultInvitationData: InvitationDetails = {
   familyHeading: 'देशपांडे परिवाराकडून',
   familyName: 'देशपांडे परिवार',
-  hostName: 'राजेश देशपांडे',
+  hostName: 'श्री. राजेश देशपांडे',
   venueName: 'देशपांडे निवास',
   fullAddress: 'फ्लॅट क्र. ४०२, सिद्धिविनायक हाइट्स, रामबाग कॉलनी, पौड रोड, कोथरूड, पुणे',
   landmark: 'आनंद नगर मेट्रो स्टेशन जवळ, पुणे - ४११०३८',
@@ -15,33 +15,47 @@ export const defaultInvitationData: InvitationDetails = {
     'गणेशोत्सवाच्या या मंगलमय पर्वावर, विघ्नहर्ता श्री गणरायाचे आगमन आमच्या घरी मोठ्या उत्साहात व भक्तीभावात होत आहे. तरी आपण सर्वांनी सपरिवार उपस्थित राहून लाडक्या बाप्पांचे दर्शन घ्यावे व महाप्रसादाचा लाभ घेऊन उत्सवाची शोभा वाढवावी, ही नम्र विनंती.',
   closingQuote: 'आपली उपस्थिती हेच आमच्यासाठी बाप्पांचे आशीर्वाद आहेत.',
   contactNumber: '+91 98765 43210',
-  // Divine illuminated Bappa murti
+  // 1st Upload image: Divine Ganapati Bappa idol
   bappaImageUrl:
     'https://images.unsplash.com/photo-1567591974584-f1832d98c6a0?auto=format&fit=crop&w=1200&q=80',
+  // 2nd Upload image: The inviter / family photo
+  inviterImageUrl:
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+  // Family members list displayed below the inviter photo
   familyMembers: [
     {
       id: '1',
-      name: 'राजेश देशपांडे',
-      relation: 'निमंत्रक (Host & Family Head)',
-      photoUrl:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+      name: 'श्री. राजेश देशपांडे',
+      relation: 'कुटुंबप्रमुख / मुख्य निमंत्रक',
       blessing: 'बाप्पांच्या कृपेने सर्वांचे जीवन सुख-समृद्धीने भरून जावो!',
     },
     {
       id: '2',
-      name: 'सुवर्णा देशपांडे',
-      relation: 'गृहिणी (Home Maker)',
-      photoUrl:
-        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80',
+      name: 'सौ. सुवर्णा देशपांडे',
+      relation: 'सहधर्मचारिणी',
       blessing: 'आपल्या सदिच्छा व स्नेहाने आमचा आनंद द्विगुणित होईल.',
     },
     {
       id: '3',
-      name: 'कौस्तुभ देशपांडे',
-      relation: 'पुत्र (Son)',
-      photoUrl:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+      name: 'चि. कौस्तुभ देशपांडे',
+      relation: 'पुत्र',
       blessing: 'गणपती बाप्पा मोरया! सर्व मित्रपरिवाराचे मनापासून स्वागत.',
+    },
+    {
+      id: '4',
+      name: 'कु. तन्वी देशपांडे',
+      relation: 'कन्या',
+      blessing: 'बाप्पांच्या आगमनाचा मंगलमय उत्साह!',
+    },
+    {
+      id: '5',
+      name: 'श्री. विनायक देशपांडे',
+      relation: 'ज्येष्ठ सदस्य',
+    },
+    {
+      id: '6',
+      name: 'समस्त देशपांडे परिवार',
+      relation: 'स्नेही व आप्तेष्ट',
     },
   ],
   schedule: [
