@@ -24,22 +24,22 @@ import { templeAudio } from '../utils/audio';
 interface InvitationCardProps {
   data: InvitationDetails;
   onReopenDoors: () => void;
-  onOpenCustomize: (tab?: 'photos' | 'family' | 'details') => void;
+  onOpenCustomize: (tab?: 'door' | 'photos' | 'family' | 'details') => void;
   onShowerPetals: () => void;
   inviteId?: string;
   isSavedInCloud?: boolean;
 }
 
-// Buttery smooth "Upcoming is blurred -> transit to clear when reached" scroll animation
+// Ultra-refined, cinematic optical lens reveal ("Upcoming is softly blurred -> smoothly resolves into crystal focus")
 const upcomingBlurVariant = {
   blurred: {
-    opacity: 0.35,
-    filter: 'blur(10px)',
-    y: 24,
-    scale: 0.98,
+    opacity: 0.28,
+    filter: 'blur(8px)',
+    y: 28,
+    scale: 0.975,
     transition: {
       duration: 0.45,
-      ease: [0.16, 1, 0.3, 1],
+      ease: [0.25, 1, 0.5, 1],
     },
   },
   focused: {
@@ -48,7 +48,7 @@ const upcomingBlurVariant = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.65,
+      duration: 0.75,
       ease: [0.16, 1, 0.3, 1],
     },
   },
@@ -129,32 +129,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             卐
           </span>
           <div>
-            <p className="text-xs font-serif tracking-wider text-[#fef08a] font-bold drop-shadow flex items-center gap-1.5">
-              <span>|| श्री गणेशाय नमः ||</span>
-              {isSavedInCloud && (
-                <span className="inline-flex items-center gap-1 text-[9px] font-sans font-medium text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.2 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  क्लाउड
-                </span>
-              )}
+            <p className="text-xs font-serif tracking-wider text-[#fef08a] font-bold drop-shadow">
+              || श्री गणेशाय नमः ||
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Tutari Fanfare & Auspicious Flower Shower */}
-          <button
-            onClick={() => {
-              templeAudio.playTutari();
-              onShowerPetals();
-            }}
-            className="p-1.5 px-2 rounded-full bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 transition active:scale-95 cursor-pointer flex items-center gap-1 shadow-sm"
-            title="तुतारीचा गजर व पुष्पवृष्टी (Play Tutari Fanfare & Flower Shower)"
-          >
-            <span className="text-sm leading-none">📯</span>
-            <span className="text-[10px] font-serif font-bold text-amber-200 hidden sm:inline">तुतारी</span>
-          </button>
-
           {/* Temple Bell */}
           <button
             onClick={() => {
@@ -193,13 +174,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             <DoorClosed className="w-4 h-4 text-amber-400" />
           </button>
 
-          {/* Settings / Customize */}
+          {/* Settings / Customize - Prominently Illuminated Golden Badge */}
           <button
-            onClick={() => onOpenCustomize('photos')}
-            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 transition active:scale-95 cursor-pointer flex items-center gap-1"
-            title="सेटिंग्ज व माहिती बदला (Settings: Edit Photos & Family Members)"
+            onClick={() => onOpenCustomize('door')}
+            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.65)] border border-amber-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 font-serif shrink-0"
+            title="सेटिंग्ज व माहिती बदला (Settings: Edit Photos, Names, Venue & Password)"
           >
-            <Settings className="w-4 h-4 text-amber-400" />
+            <Settings className="w-3.5 h-3.5 text-stone-950 stroke-[2.5] animate-[spin_10s_linear_infinite]" />
+            <span className="font-bold tracking-tight">सेटिंग्ज</span>
           </button>
         </div>
       </header>
@@ -291,8 +273,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center transform-gpu will-change-[filter,opacity,transform]"
         >
           <div className="flex items-center justify-center gap-3 mb-2.5">
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-amber-400" />
@@ -320,18 +302,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               <span className="text-amber-400 text-lg block group-hover:animate-bounce">🌺</span>
               <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">पुष्पवृष्टी</p>
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                templeAudio.playTutari();
-                onShowerPetals();
-              }}
-              className="cursor-pointer group flex flex-col items-center hover:scale-105 active:scale-95 transition"
-              title="तुतारीचा गजर (Play Tutari)"
-            >
-              <span className="text-amber-400 text-lg block group-hover:scale-110">📯</span>
-              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">तुतारी गजर</p>
-            </button>
+            <div className="flex flex-col items-center opacity-95">
+              <span className="text-amber-400 text-lg block">🪔</span>
+              <p className="text-[10px] font-serif text-amber-200 font-semibold mt-0.5">दीपोत्सव</p>
+            </div>
             <button
               type="button"
               onClick={() => templeAudio.ringBell()}
@@ -356,8 +330,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center transform-gpu will-change-[filter,opacity,transform]"
         >
           {/* Header */}
           <div className="flex items-center justify-center gap-2 mb-1.5">
@@ -453,8 +427,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl transform-gpu will-change-[filter,opacity,transform]"
         >
           <div className="text-center mb-4">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-semibold font-serif mb-1.5">
@@ -521,8 +495,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center transform-gpu will-change-[filter,opacity,transform]"
         >
           <div className="flex items-center justify-center gap-2 mb-1.5">
             <MapPin className="w-4 h-4 text-amber-400 animate-bounce" />
@@ -570,8 +544,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl transform-gpu will-change-[filter,opacity,transform]"
         >
           <div className="text-center mb-3.5">
             <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -624,8 +598,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           variants={upcomingBlurVariant}
           initial="blurred"
           whileInView="focused"
-          viewport={{ once: false, amount: 0.15, margin: '0px 0px -70px 0px' }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg will-change-[filter,opacity,transform]"
+          viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
+          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg transform-gpu will-change-[filter,opacity,transform]"
         >
           <span className="text-2xl block mb-1.5">🙏</span>
           <p className="text-xs sm:text-sm font-serif italic text-amber-100 font-medium leading-relaxed max-w-xs mx-auto">
@@ -635,12 +609,33 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             <p className="text-sm font-bold font-serif text-amber-400">
               — {data.familyName}
             </p>
-            {data.contactNumber && (
-              <p className="text-xs text-stone-400 mt-1 flex items-center justify-center gap-1.5 font-mono">
-                <Phone className="w-3 h-3 text-amber-400" />
-                <span>{data.contactNumber}</span>
+            {data.hostName && (
+              <p className="text-xs text-amber-200/90 font-serif mt-0.5">
+                (निमंत्रक: {data.hostName})
               </p>
             )}
+            {data.contactNumber && (
+              <div className="mt-2 flex items-center justify-center gap-2">
+                <a
+                  href={`tel:${data.contactNumber.replace(/[^0-9+]/g, '')}`}
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 px-3.5 py-1.5 rounded-full font-mono font-semibold transition active:scale-95 shadow-sm"
+                  title="थेट कॉल करा"
+                >
+                  <Phone className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{data.contactNumber} (कॉल करा 📞)</span>
+                </a>
+              </div>
+            )}
+            <div className="mt-3 pt-2 border-t border-amber-500/10 flex justify-center">
+              <button
+                type="button"
+                onClick={() => onOpenCustomize('door')}
+                className="cursor-pointer inline-flex items-center gap-1.5 text-[11px] font-serif text-amber-300 hover:text-amber-100 bg-[#072418] hover:bg-[#0c3a28] border border-amber-500/35 px-3 py-1.5 rounded-xl shadow transition active:scale-95"
+              >
+                <span>✏️</span>
+                <span>नाव, संपर्क क्रमांक व निमंत्रण तपशील बदला</span>
+              </button>
+            </div>
           </div>
         </motion.section>
       </main>
@@ -662,11 +657,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           {/* Quick Settings / Customize Button */}
           <button
             onClick={() => onOpenCustomize('photos')}
-            className="cursor-pointer py-3 px-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950 font-serif"
+            className="cursor-pointer py-3 px-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-100 font-serif shrink-0"
             title="सेटिंग्ज (फोटो, कुटुंब नावे, माहिती बदला)"
           >
-            <Settings className="w-4 h-4" />
-            <span>सेटिंग्ज</span>
+            <Settings className="w-4 h-4 text-stone-950 stroke-[2.5]" />
+            <span className="font-bold">सेटिंग्ज ⚙️</span>
           </button>
 
           {/* Copy Link */}

@@ -3,6 +3,7 @@ import { TempleDoor } from './components/TempleDoor';
 import { InvitationCard } from './components/InvitationCard';
 import { PetalCanvas } from './components/PetalCanvas';
 import { CustomizeModal } from './components/CustomizeModal';
+import { PasswordModal } from './components/PasswordModal';
 import { defaultInvitationData } from './data/defaultData';
 import { InvitationDetails } from './types';
 import { subscribeToInvitation, saveInvitation } from './utils/firebase';
@@ -12,7 +13,10 @@ export default function App() {
   const [isOpenDoor, setIsOpenDoor] = useState(false);
   const [data, setData] = useState<InvitationDetails>(defaultInvitationData);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
-  const [customizeTab, setCustomizeTab] = useState<'photos' | 'family' | 'details'>('photos');
+  const [customizeTab, setCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details'>('door');
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [pendingCustomizeTab, setPendingCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details'>('door');
   const [burstTrigger, setBurstTrigger] = useState(0);
   const [isSavedInCloud, setIsSavedInCloud] = useState(false);
 
@@ -57,8 +61,20 @@ export default function App() {
     setBurstTrigger((prev) => prev + 1);
   };
 
-  const handleOpenCustomizeWithTab = (tab: 'photos' | 'family' | 'details' = 'photos') => {
-    setCustomizeTab(tab);
+  const handleOpenCustomizeWithTab = (tab: 'door' | 'photos' | 'family' | 'details' = 'door') => {
+    setPendingCustomizeTab(tab);
+    if (isAdminUnlocked) {
+      setCustomizeTab(tab);
+      setIsCustomizeOpen(true);
+    } else {
+      setIsPasswordModalOpen(true);
+    }
+  };
+
+  const handlePasswordSuccess = () => {
+    setIsAdminUnlocked(true);
+    setIsPasswordModalOpen(false);
+    setCustomizeTab(pendingCustomizeTab);
     setIsCustomizeOpen(true);
   };
 
@@ -85,6 +101,7 @@ export default function App() {
         onShower={handleShowerPetals}
         familyHeading={data.familyHeading}
         familyName={data.familyName}
+        onOpenCustomize={handleOpenCustomizeWithTab}
       />
 
       {/* Main Mobile-Optimized Invitation View (Clean, Buttery Smooth, No Phone Mockup) */}
@@ -98,6 +115,14 @@ export default function App() {
           onShowerPetals={handleShowerPetals}
         />
       </div>
+
+      {/* Password Verification Modal to Protect Settings */}
+      <PasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onSuccess={handlePasswordSuccess}
+        currentPassword={data.adminPassword ?? '1234'}
+      />
 
       {/* 2-Upload and Family Customization Modal */}
       <CustomizeModal

@@ -35,6 +35,7 @@ export interface InvitationDetails {
   invitationMessage: string;
   closingQuote: string;
   contactNumber: string;
+  adminPassword?: string; // Settings & customization protection password (changeable in settings)
   bappaImageUrl: string; // 1st Upload: Ganapati Bappa's image
   inviterImageUrl: string; // 2nd Upload: Invitator's / Family's image
   familyMembers: FamilyMember[]; // All family members whose names show below inviter image

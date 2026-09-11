@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Bell } from 'lucide-react';
+import { Sparkles, Bell, Settings } from 'lucide-react';
 import { templeAudio } from '../utils/audio';
 
 interface TempleDoorProps {
@@ -9,6 +9,7 @@ interface TempleDoorProps {
   onShower?: () => void;
   familyHeading?: string;
   familyName?: string;
+  onOpenCustomize?: (tab?: 'door' | 'photos' | 'family' | 'details') => void;
 }
 
 export const TempleDoor: React.FC<TempleDoorProps> = ({
@@ -17,6 +18,7 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
   onShower,
   familyHeading = 'देशपांडे परिवाराकडून',
   familyName = 'देशपांडे परिवार',
+  onOpenCustomize,
 }) => {
   const [isOpeningAnim, setIsOpeningAnim] = useState(false);
 
@@ -58,6 +60,19 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
         >
           {/* Subtle golden ambient background glow */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600/15 via-[#061910]/90 to-[#020b06] pointer-events-none" />
+
+          {/* Top-Right Highly Visible Settings Button on Door Screen */}
+          {onOpenCustomize && (
+            <button
+              type="button"
+              onClick={() => onOpenCustomize('door')}
+              className="absolute top-4 right-4 z-50 cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 text-xs sm:text-sm font-serif font-black shadow-[0_0_25px_rgba(245,158,11,0.7)] border-2 border-amber-100 backdrop-blur-md transition-all duration-300 active:scale-95"
+              title="सेटिंग्ज: दारावरील नाव, फोटो, निमंत्रण व पासवर्ड बदला"
+            >
+              <Settings className="w-4 h-4 text-stone-950 stroke-[2.5] animate-[spin_8s_linear_infinite]" />
+              <span className="tracking-tight">⚙️ सेटिंग्ज (नाव बदला)</span>
+            </button>
+          )}
 
           {/* Left Door Panel */}
           <motion.div
@@ -153,7 +168,21 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               <h2 className="text-lg sm:text-2xl font-bold font-serif text-amber-100 mt-2 drop-shadow">
                 {familyHeading}
               </h2>
-              <p className="text-xs sm:text-sm text-amber-300/80 font-serif tracking-widest">
+              {onOpenCustomize && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCustomize('door');
+                  }}
+                  className="mt-1 cursor-pointer inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 text-[11px] font-serif text-amber-300 transition active:scale-95"
+                  title="दारावरील हे नाव बदला"
+                >
+                  <span>✏️</span>
+                  <span>नाव बदला</span>
+                </button>
+              )}
+              <p className="text-xs sm:text-sm text-amber-300/80 font-serif tracking-widest mt-1">
                 गणपती आगमन २०२५
               </p>
             </motion.div>

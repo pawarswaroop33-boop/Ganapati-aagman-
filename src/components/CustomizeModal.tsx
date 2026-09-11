@@ -13,7 +13,10 @@ import {
   Camera,
   MapPin,
   Calendar,
-  Phone
+  Phone,
+  Lock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { InvitationDetails, FamilyMember } from '../types';
 import { defaultInvitationData } from '../data/defaultData';
@@ -24,7 +27,7 @@ interface CustomizeModalProps {
   onClose: () => void;
   data: InvitationDetails;
   onSave: (updated: InvitationDetails) => Promise<void> | void;
-  initialTab?: 'photos' | 'family' | 'details';
+  initialTab?: 'door' | 'photos' | 'family' | 'details';
 }
 
 // Curated authentic Ganapati Bappa murtis presets for quick selection
@@ -52,16 +55,17 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   onClose,
   data,
   onSave,
-  initialTab = 'photos',
+  initialTab = 'door',
 }) => {
   const [formData, setFormData] = useState<InvitationDetails>({ ...data });
-  const [activeTab, setActiveTab] = useState<'photos' | 'family' | 'details'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'door' | 'photos' | 'family' | 'details'>(initialTab);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('');
   const [isCompressing, setIsCompressing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -179,47 +183,220 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 my-3 p-1 rounded-2xl bg-[#030e07] border border-amber-500/20 shrink-0">
+        <div className="grid grid-cols-4 gap-1 my-3 p-1 rounded-2xl bg-[#030e07] border border-amber-500/20 shrink-0">
           <button
             type="button"
-            onClick={() => setActiveTab('photos')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-serif font-bold transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'photos'
-                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
+            onClick={() => setActiveTab('door')}
+            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+              activeTab === 'door'
+                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
-            <Camera className="w-3.5 h-3.5" />
-            <span>२ फोटो अपलोड</span>
+            <span>🚪</span>
+            <span className="truncate">नाव व सुरक्षा</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('photos')}
+            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+              activeTab === 'photos'
+                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
+                : 'text-stone-300 hover:text-white'
+            }`}
+          >
+            <Camera className="w-3 h-3 shrink-0" />
+            <span className="truncate">२ फोटो</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('family')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-serif font-bold transition flex items-center justify-center gap-1.5 ${
+            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
               activeTab === 'family'
-                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
+                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>कुटुंब सदस्यांची नावे</span>
+            <Users className="w-3 h-3 shrink-0" />
+            <span className="truncate">कुटुंब सदस्य</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('details')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-serif font-bold transition flex items-center justify-center gap-1.5 ${
+            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
               activeTab === 'details'
-                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
+                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>पत्ता व वेळ</span>
+            <Calendar className="w-3 h-3 shrink-0" />
+            <span className="truncate">स्थळ व वेळ</span>
           </button>
         </div>
 
         {/* Scrollable Form Body */}
         <form onSubmit={handleSave} className="overflow-y-auto space-y-4 pr-1 text-xs sm:text-sm flex-1">
+          {/* ======================================================== */}
+          {/* TAB 0: DOOR NAME, FAMILY NAME, CALL NUMBER & HOST       */}
+          {/* ======================================================== */}
+          {activeTab === 'door' && (
+            <div className="space-y-3.5">
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-600/10 to-transparent border border-amber-500/30">
+                <h4 className="text-xs sm:text-sm font-bold font-serif text-amber-200 flex items-center gap-1.5">
+                  <span>🚪</span>
+                  <span>दारावरील नाव, निमंत्रक व संपर्क तपशील</span>
+                </h4>
+                <p className="text-[11px] text-stone-300 font-serif mt-1 leading-relaxed">
+                  येथे केलेले बदल मुख्य दरवाजा उघडण्यापूर्वी दिसणाऱ्या नावावर, निमंत्रण पत्रिकेत आणि खालील संपर्क नंबरवर त्वरित अपडेट होतात.
+                </p>
+              </div>
+
+              {/* Door Opening Heading */}
+              <div className="p-3 rounded-xl bg-[#04120a] border border-amber-500/30 space-y-1">
+                <label className="block text-amber-200 font-serif text-xs font-bold">
+                  दारावरील मुख्य शीर्षक (Door Opening Heading) <span className="text-amber-400">*</span>
+                </label>
+                <p className="text-[10px] text-stone-400 font-serif mb-1">
+                  (उदा. 'देशपांडे परिवाराकडून' किंवा 'पवार परिवाराकडून' - हे नाव सुरुवातीला मंदिर दरवाजावर दिसते)
+                </p>
+                <input
+                  type="text"
+                  value={formData.familyHeading}
+                  onChange={(e) =>
+                    setFormData({ ...formData, familyHeading: e.target.value })
+                  }
+                  placeholder="उदा. पवार परिवाराकडून"
+                  className="w-full px-3 py-2 rounded-xl bg-[#071a10] border border-amber-500/40 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              {/* Family Name */}
+              <div className="p-3 rounded-xl bg-[#04120a] border border-amber-500/30 space-y-1">
+                <label className="block text-amber-200 font-serif text-xs font-bold">
+                  कुटुंबाचे नाव (Family Name) <span className="text-amber-400">*</span>
+                </label>
+                <p className="text-[10px] text-stone-400 font-serif mb-1">
+                  (उदा. 'देशपांडे परिवार' किंवा 'पवार परिवार' - हे नाव पत्रिकेच्या शेवटी स्वाक्षरीमध्ये दिसते)
+                </p>
+                <input
+                  type="text"
+                  value={formData.familyName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, familyName: e.target.value })
+                  }
+                  placeholder="उदा. पवार परिवार"
+                  className="w-full px-3 py-2 rounded-xl bg-[#071a10] border border-amber-500/40 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              {/* Host Name & Contact Phone Number */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 rounded-xl bg-[#04120a] border border-amber-500/30 space-y-1">
+                  <label className="block text-amber-200 font-serif text-xs font-bold">
+                    मुख्य निमंत्रक नाव (Main Host Name)
+                  </label>
+                  <p className="text-[10px] text-stone-400 font-serif mb-1">
+                    (उदा. श्री. राजेश देशपांडे)
+                  </p>
+                  <input
+                    type="text"
+                    value={formData.hostName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, hostName: e.target.value })
+                    }
+                    placeholder="उदा. श्री. स्वरूप पवार"
+                    className="w-full px-3 py-2 rounded-xl bg-[#071a10] border border-amber-500/40 text-white text-xs focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl bg-[#04120a] border border-amber-500/30 space-y-1">
+                  <label className="block text-amber-200 font-serif text-xs font-bold">
+                    संपर्क / फोन नंबर (Call / Mobile No) <span className="text-amber-400">*</span>
+                  </label>
+                  <p className="text-[10px] text-stone-400 font-serif mb-1">
+                    (पाहुणे यावर थेट कॉल करू शकतील)
+                  </p>
+                  <input
+                    type="text"
+                    value={formData.contactNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, contactNumber: e.target.value })
+                    }
+                    placeholder="उदा. +91 98765 43210"
+                    className="w-full px-3 py-2 rounded-xl bg-[#071a10] border border-amber-500/40 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              {/* Closing Quote / Benediction */}
+              <div className="p-3 rounded-xl bg-[#04120a] border border-amber-500/30 space-y-1">
+                <label className="block text-amber-200 font-serif text-xs font-bold">
+                  समारोप सस्नेह संदेश / आशीर्वाद (Closing Benediction)
+                </label>
+                <p className="text-[10px] text-stone-400 font-serif mb-1">
+                  (पत्रिकेच्या तळाशी दिसणारा भक्तिमय संदेश)
+                </p>
+                <textarea
+                  rows={2}
+                  value={formData.closingQuote}
+                  onChange={(e) =>
+                    setFormData({ ...formData, closingQuote: e.target.value })
+                  }
+                  placeholder="उदा. आपली उपस्थिती हेच आमचे भाग्य, बाप्पांच्या आशीर्वादाने आपले जीवन सुख-समृद्धीने भरून जावो हीच प्रार्थना!"
+                  className="w-full px-3 py-2 rounded-xl bg-[#071a10] border border-amber-500/40 text-white text-xs focus:outline-none focus:border-amber-400 leading-relaxed font-serif"
+                />
+              </div>
+
+              {/* Settings Admin Password Configuration (Changeable in settings) */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#071d12] to-[#030e07] border-2 border-amber-500/50 space-y-2.5 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                      <Lock className="w-3.5 h-3.5" />
+                    </div>
+                    <label className="text-amber-200 font-serif text-xs font-bold">
+                      सेटिंग्ज ॲक्सेस पासवर्ड (Settings Password)
+                    </label>
+                  </div>
+                  <span className="text-[10px] text-amber-300 font-serif font-semibold bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                    🔐 बदलण्यायोग्य
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-stone-300 font-serif leading-relaxed">
+                  हा पासवर्ड सेट केल्यास कोणीही इतर व्यक्ती तुमच्या निमंत्रणात परस्पर बदल करू शकणार नाही. पुढील वेळी सेटिंग्ज उघडण्यासाठी हा पासवर्ड आवश्यक असेल.
+                </p>
+
+                <div className="relative">
+                  <input
+                    type={showAdminPassword ? 'text' : 'password'}
+                    value={formData.adminPassword ?? '1234'}
+                    onChange={(e) =>
+                      setFormData({ ...formData, adminPassword: e.target.value })
+                    }
+                    placeholder="नवीन पासवर्ड प्रविष्ट करा (उदा. 1234 किंवा आपला गुप्त कोड)..."
+                    className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-[#030e07] border border-amber-500/50 text-white text-xs sm:text-sm font-sans tracking-wider focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                    className="cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-amber-300 transition"
+                    title={showAdminPassword ? 'पासवर्ड लपवा' : 'पासवर्ड दाखवा'}
+                  >
+                    {showAdminPassword ? (
+                      <EyeOff className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-stone-400" />
+                    )}
+                  </button>
+                </div>
+
+                <p className="text-[10px] text-amber-300/80 font-serif">
+                  * बदल जतन करण्यासाठी खालील <strong>'बदल जतन करा'</strong> बटणावर नक्की क्लिक करा.
+                </p>
+              </div>
+            </div>
+          )}
           {/* ======================================================== */}
           {/* TAB 1: 2 UPLOAD INTERFACE (BAPPA & INVITATOR)            */}
           {/* ======================================================== */}

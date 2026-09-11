@@ -15,6 +15,7 @@ export const defaultInvitationData: InvitationDetails = {
     'गणेशोत्सवाच्या या मंगलमय पर्वावर, विघ्नहर्ता श्री गणरायाचे आगमन आमच्या घरी मोठ्या उत्साहात व भक्तीभावात होत आहे. तरी आपण सर्वांनी सपरिवार उपस्थित राहून लाडक्या बाप्पांचे दर्शन घ्यावे व महाप्रसादाचा लाभ घेऊन उत्सवाची शोभा वाढवावी, ही नम्र विनंती.',
   closingQuote: 'आपली उपस्थिती हेच आमच्यासाठी बाप्पांचे आशीर्वाद आहेत.',
   contactNumber: '+91 98765 43210',
+  adminPassword: '1234',
   // 1st Upload image: Divine Ganapati Bappa idol
   bappaImageUrl:
     'https://images.unsplash.com/photo-1567591974584-f1832d98c6a0?auto=format&fit=crop&w=1200&q=80',
