@@ -28,6 +28,43 @@ interface InvitationCardProps {
   onShowerPetals: () => void;
 }
 
+// Buttery smooth "Blur to Clear" scroll reveal animation
+const blurRevealVariant = {
+  hidden: {
+    opacity: 0,
+    filter: 'blur(14px)',
+    y: 35,
+    scale: 0.97,
+  },
+  visible: {
+    opacity: 1,
+    filter: 'blur(0px)',
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.85,
+      ease: [0.16, 1, 0.3, 1], // Smooth cubic-bezier curve
+    },
+  },
+};
+
+const itemRevealVariant = {
+  hidden: {
+    opacity: 0,
+    filter: 'blur(8px)',
+    y: 15,
+  },
+  visible: {
+    opacity: 1,
+    filter: 'blur(0px)',
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
 export const InvitationCard: React.FC<InvitationCardProps> = ({
   data,
   onReopenDoors,
@@ -83,11 +120,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#04120a] text-stone-100 flex flex-col items-center selection:bg-amber-500 selection:text-stone-950 pb-32">
+    <div className="w-full min-h-screen bg-[#04120a] text-stone-100 flex flex-col items-center selection:bg-amber-500 selection:text-stone-950 pb-36">
       {/* ============================================================ */}
       {/* STICKY TOP APP BAR (Optimized for Mobile)                    */}
       {/* ============================================================ */}
-      <header className="sticky top-0 z-30 w-full max-w-md bg-[#05170d]/92 backdrop-blur-md border-b border-[#d4af37]/30 px-3.5 py-2.5 flex items-center justify-between shadow-lg shadow-black/40">
+      <header className="sticky top-0 z-30 w-full max-w-md bg-[#05170d]/95 backdrop-blur-md border-b border-[#d4af37]/30 px-3.5 py-2.5 flex items-center justify-between shadow-lg shadow-black/40">
         <div className="flex items-center space-x-2">
           <span className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-stone-950 font-bold text-xs shadow-md shadow-amber-950">
             卐
@@ -106,7 +143,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               templeAudio.ringBell();
               onShowerPetals();
             }}
-            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition active:scale-95"
+            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition active:scale-95 cursor-pointer"
             title="घंटा नाद व पुष्पवृष्टी (Ring Bell & Petals)"
           >
             <Bell className="w-4 h-4 text-amber-400" />
@@ -115,7 +152,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           {/* Devotional Music Audio Toggle */}
           <button
             onClick={toggleAudio}
-            className={`p-2 rounded-full border transition active:scale-95 flex items-center justify-center ${
+            className={`p-2 rounded-full border transition active:scale-95 flex items-center justify-center cursor-pointer ${
               isPlayingAudio
                 ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md shadow-amber-500/20'
                 : 'bg-stone-900/80 text-stone-400 border-stone-700'
@@ -132,7 +169,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           {/* Re-close doors button */}
           <button
             onClick={onReopenDoors}
-            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition active:scale-95"
+            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition active:scale-95 cursor-pointer"
             title="दार पुन्हा बंद करा (Replay Sanctum Doors)"
           >
             <DoorClosed className="w-4 h-4 text-amber-400" />
@@ -141,8 +178,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           {/* Settings / Customize */}
           <button
             onClick={() => onOpenCustomize('photos')}
-            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition active:scale-95"
-            title="फोटो व माहिती बदला (Upload Photos & Edit)"
+            className="p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 transition active:scale-95 cursor-pointer flex items-center gap-1"
+            title="सेटिंग्ज व माहिती बदला (Settings: Edit Photos & Family Members)"
           >
             <Settings className="w-4 h-4 text-amber-400" />
           </button>
@@ -152,15 +189,16 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       {/* ============================================================ */}
       {/* MOBILE INVITATION CONTENT CONTAINER                          */}
       {/* ============================================================ */}
-      <main className="w-full max-w-md px-3.5 sm:px-4 pt-3.5 space-y-6">
+      <main className="w-full max-w-md px-3.5 sm:px-4 pt-3.5 space-y-7">
         {/* ============================================================ */}
         {/* SECTION 1: HERO COVER WITH BAPPA'S IMAGE (1st Image)        */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_10px_35px_rgba(0,0,0,0.8)] text-center p-4 sm:p-5 pt-6"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-center p-4 sm:p-5 pt-6"
         >
           {/* Subtle golden ambient glow */}
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -187,7 +225,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <img
                   src={data.bappaImageUrl}
                   alt="श्री गणपती बाप्पा (Ganapati Bappa)"
-                  className="w-full h-full object-cover object-center transform transition duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transform transition duration-700 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       'https://images.unsplash.com/photo-1567591974584-f1832d98c6a0?auto=format&fit=crop&w=1200&q=80';
@@ -199,7 +237,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
                 {/* Bottom Auspicious Tag */}
                 <div className="absolute bottom-2.5 inset-x-0 flex justify-center">
-                  <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-amber-400/50 text-[10px] text-amber-200 font-serif font-bold tracking-wider shadow-lg">
+                  <span className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-amber-400/50 text-[10px] text-amber-200 font-serif font-bold tracking-wider shadow-lg">
                     || विघ्नहर्ता प्रसन्न ||
                   </span>
                 </div>
@@ -207,8 +245,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 {/* Quick Upload / Edit Button Overlay for Bappa Image */}
                 <button
                   onClick={() => onOpenCustomize('photos')}
-                  className="absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
-                  title="बाप्पांचा फोटो बदला (Change Bappa Photo)"
+                  className="cursor-pointer absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
+                  title="बाप्पांचा फोटो बदला (Change Bappa Photo in Settings)"
                 >
                   <Camera className="w-3.5 h-3.5 text-amber-300" />
                 </button>
@@ -231,10 +269,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         {/* SECTION 2: सस्नेह आमंत्रण INVITATION PROSE                   */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/85 via-[#05190f]/90 to-[#04120a] border border-[#d4af37]/35 p-5 shadow-xl text-center"
         >
           <div className="flex items-center justify-center gap-3 mb-2.5">
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-amber-400" />
@@ -274,12 +313,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
         {/* ============================================================ */}
         {/* SECTION 3: INVITATOR'S IMAGE & ALL FAMILY MEMBERS BELOW IT   */}
+        {/* (Cleanly displayed; all name management is inside Settings)  */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
         >
           {/* Header */}
           <div className="flex items-center justify-center gap-2 mb-1.5">
@@ -300,7 +341,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <img
                   src={data.inviterImageUrl}
                   alt={data.hostName}
-                  className="w-full h-full object-cover object-top transform transition duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transform transition duration-700 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80';
@@ -319,8 +360,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 {/* Quick Upload / Edit Button Overlay for Inviter Image */}
                 <button
                   onClick={() => onOpenCustomize('photos')}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
-                  title="निमंत्रक फोटो बदला (Change Inviter Photo)"
+                  className="cursor-pointer absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-400/60 text-amber-300 backdrop-blur-md opacity-80 hover:opacity-100 transition active:scale-95"
+                  title="निमंत्रक फोटो बदला (Change Inviter Photo in Settings)"
                 >
                   <Camera className="w-3.5 h-3.5 text-amber-300" />
                 </button>
@@ -335,12 +376,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               <span>कुटुंबातील सर्व सदस्य</span>
             </div>
 
-            {/* List of All Family Members */}
+            {/* List of All Family Members (Pristinely rendered without inline clutter) */}
             <div className="space-y-2 text-left">
               {data.familyMembers.map((member, idx) => (
-                <div
+                <motion.div
                   key={member.id || idx}
-                  className="p-2.5 rounded-xl bg-[#04120a]/90 border border-amber-500/25 flex items-center justify-between gap-2 hover:border-amber-500/40 transition"
+                  variants={itemRevealVariant}
+                  className="p-2.5 rounded-xl bg-[#04120a]/90 border border-amber-500/25 flex items-center justify-between gap-2 hover:border-amber-500/40 transition shadow-sm"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-[11px] font-bold shrink-0">
@@ -361,18 +403,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                   <span className="text-[10px] sm:text-[11px] text-amber-300 font-serif bg-amber-950/70 border border-amber-500/30 px-2 py-0.5 rounded-lg shrink-0 font-medium">
                     {member.relation}
                   </span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-
-            {/* Quick edit family members button */}
-            <div className="mt-3 text-center">
-              <button
-                onClick={() => onOpenCustomize('family')}
-                className="inline-flex items-center gap-1.5 text-xs text-amber-300/80 hover:text-amber-200 font-serif underline underline-offset-4 transition"
-              >
-                <span>+ कुटुंबातील नावे बदला किंवा नवीन जोडा</span>
-              </button>
             </div>
           </div>
         </motion.section>
@@ -381,10 +413,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         {/* SECTION 4: ALL EVENTS SCHEDULE / गणेश उत्सव                  */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
         >
           <div className="text-center mb-4">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-semibold font-serif mb-1.5">
@@ -401,9 +434,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
           <div className="space-y-2.5">
             {data.schedule.map((item, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="rounded-xl bg-[#04120a]/80 border border-amber-500/20 p-3 flex items-start justify-between gap-2.5"
+                variants={itemRevealVariant}
+                className="rounded-xl bg-[#04120a]/80 border border-amber-500/20 p-3 flex items-start justify-between gap-2.5 hover:border-amber-500/40 transition"
               >
                 <div className="flex items-start gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
@@ -427,7 +461,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 <span className="text-[11px] font-bold text-amber-400 font-serif bg-amber-950/70 px-2 py-0.5 rounded-lg border border-amber-500/30 shrink-0">
                   {item.time}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -435,7 +469,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-center">
             <button
               onClick={handleAddToCalendar}
-              className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold font-serif transition active:scale-95 flex items-center justify-center gap-2"
+              className="cursor-pointer w-full py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold font-serif transition active:scale-95 flex items-center justify-center gap-2 shadow-sm"
             >
               <Calendar className="w-3.5 h-3.5 text-amber-400" />
               <span>कॅलेंडरमध्ये जोडा (Add to Google Calendar)</span>
@@ -447,10 +481,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         {/* SECTION 5: ONE-TAP GET DIRECTIONS / ठिकाण                   */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/95 via-[#05190f] to-[#04120a] border border-[#d4af37]/45 p-4 sm:p-5 shadow-xl text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-1.5">
             <MapPin className="w-4 h-4 text-amber-400 animate-bounce" />
@@ -482,7 +517,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             href={data.googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-xs sm:text-sm font-serif shadow-lg shadow-amber-950/70 flex items-center justify-center gap-2 transition duration-200 active:scale-95"
+            className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-xs sm:text-sm font-serif shadow-lg shadow-amber-950/70 flex items-center justify-center gap-2 transition duration-200 active:scale-95"
           >
             <MapPin className="w-4 h-4 text-stone-950" />
             <span>गुगल मॅप्स वर मार्ग पहा (Get Directions 📍)</span>
@@ -494,10 +529,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         {/* SECTION 6: आगमनाची तयारी GALLERY                            */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl"
         >
           <div className="text-center mb-3.5">
             <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -516,8 +552,9 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
           <div className="grid grid-cols-2 gap-2">
             {data.preparations.map((item) => (
-              <div
+              <motion.div
                 key={item.id}
+                variants={itemRevealVariant}
                 className="group relative rounded-xl overflow-hidden aspect-square border border-amber-500/30 bg-stone-900 shadow-md"
               >
                 <img
@@ -537,7 +574,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                     {item.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.section>
@@ -546,10 +583,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         {/* SECTION 7: CLOSING BENEDICTION                               */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg"
+          variants={blurRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="blur-reveal relative rounded-3xl bg-gradient-to-b from-[#082215]/60 via-[#05190f] to-[#04120a] border border-[#d4af37]/30 p-5 text-center shadow-lg"
         >
           <span className="text-2xl block mb-1.5">🙏</span>
           <p className="text-xs sm:text-sm font-serif italic text-amber-100 font-medium leading-relaxed max-w-xs mx-auto">
@@ -570,34 +608,33 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       </main>
 
       {/* ============================================================ */}
-      {/* FIXED BOTTOM QUICK ACTION BAR (Optimized for Mobile)         */}
-      {/* (RSVP completely removed as requested)                       */}
+      {/* FIXED BOTTOM FLOATING QUICK ACTION BAR                        */}
       {/* ============================================================ */}
       <div className="fixed bottom-3 inset-x-3 max-w-md mx-auto z-30">
         <div className="rounded-2xl bg-[#061e12]/95 backdrop-blur-xl border border-amber-500/40 p-2 shadow-[0_10px_30px_rgba(0,0,0,0.85)] flex items-center justify-between gap-2">
           {/* Prominent WhatsApp Share Button */}
           <button
             onClick={handleShareWhatsApp}
-            className="flex-1 py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-emerald-950 font-serif"
+            className="cursor-pointer flex-1 py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-emerald-950 font-serif"
           >
             <Share2 className="w-4 h-4" />
-            <span>WhatsApp वर निमंत्रण पाठवा</span>
+            <span>WhatsApp वर पाठवा</span>
           </button>
 
-          {/* Quick 2-Photo Upload / Edit Button */}
+          {/* Quick Settings / Customize Button */}
           <button
             onClick={() => onOpenCustomize('photos')}
-            className="py-3 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950 font-serif"
-            title="फोटो बदला (Change Photos)"
+            className="cursor-pointer py-3 px-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950 font-serif"
+            title="सेटिंग्ज (फोटो, कुटुंब नावे, माहिती बदला)"
           >
-            <Camera className="w-4 h-4" />
-            <span className="hidden sm:inline">फोटो बदला</span>
+            <Settings className="w-4 h-4" />
+            <span>सेटिंग्ज</span>
           </button>
 
           {/* Copy Link */}
           <button
             onClick={handleCopyLink}
-            className="p-3 rounded-xl bg-stone-900 border border-amber-500/30 text-amber-300 hover:bg-stone-800 transition active:scale-95 shrink-0"
+            className="cursor-pointer p-3 rounded-xl bg-stone-900 border border-amber-500/30 text-amber-300 hover:bg-stone-800 transition active:scale-95 shrink-0"
             title="निमंत्रण लिंक कॉपी करा"
           >
             {copiedLink ? (

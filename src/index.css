@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
 @layer utilities {
   .font-yatra {
     font-family: 'Yatra One', 'Rozha One', cursive, sans-serif;
@@ -12,6 +21,9 @@
   }
   .font-martel {
     font-family: 'Martel', serif;
+  }
+  .blur-reveal {
+    will-change: transform, filter, opacity;
   }
 }
 

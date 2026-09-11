@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   X,
@@ -57,6 +57,13 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const [activeTab, setActiveTab] = useState<'photos' | 'family' | 'details'>(initialTab);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({ ...data });
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab, data]);
 
   if (!isOpen) return null;
 
