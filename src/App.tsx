@@ -110,9 +110,9 @@ export default function App() {
   };
 
   const handleSaveInvitation = async (updated: InvitationDetails) => {
-    setData(updated);
     try {
       await saveInvitation(inviteId, updated);
+      setData(updated);
       setIsSavedInCloud(true);
     } catch (err) {
       console.error('Failed to save invitation to Firebase:', err);

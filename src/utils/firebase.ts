@@ -36,10 +36,61 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || '(defa
 // Local storage cache keys for instant offline-first rendering
 const getCacheKey = (invitationId: string) => `ganapati_invitation_cache_${invitationId}`;
 
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+}
+
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    operationType,
+    path,
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(errInfo.error);
+}
+
+/**
+ * Deep sanitization for Firestore:
+ * Strips all `undefined` values and converts empty optional objects
+ * so Firestore setDoc will NEVER crash with:
+ * "Unsupported field value: undefined"
+ */
+export function sanitizeForFirestore<T>(data: T): T {
+  if (data === undefined) {
+    return null as unknown as T;
+  }
+  if (data === null || typeof data !== 'object') {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeForFirestore(item)) as unknown as T;
+  }
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data as Record<string, any>)) {
+    if (value !== undefined) {
+      result[key] = sanitizeForFirestore(value);
+    }
+  }
+  return result as T;
+}
+
 // Validate connection on boot as required by Firebase skill
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
+    console.log('✅ Firestore connection verified successfully.');
     return true;
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
@@ -90,7 +141,6 @@ export function subscribeToInvitation(
     },
     (err) => {
       console.warn('Firestore subscription fallback:', err);
-      // If error occurs (e.g. network hiccup on mobile), fallback to local cache
       try {
         const cached = localStorage.getItem(getCacheKey(invitationId));
         if (cached) {
@@ -106,6 +156,7 @@ export function subscribeToInvitation(
  * Fetch invitation once
  */
 export async function getInvitationOnce(invitationId: string): Promise<InvitationDetails | null> {
+  const path = `invitations/${invitationId}`;
   try {
     const invDocRef = doc(db, 'invitations', invitationId);
     const snap = await getDoc(invDocRef);
@@ -126,6 +177,7 @@ export async function getInvitationOnce(invitationId: string): Promise<Invitatio
       const cached = localStorage.getItem(getCacheKey(invitationId));
       if (cached) return JSON.parse(cached);
     } catch {}
+    handleFirestoreError(err, OperationType.GET, path);
     return null;
   }
 }
@@ -137,21 +189,31 @@ export async function saveInvitation(
   invitationId: string,
   data: InvitationDetails
 ): Promise<void> {
+  const path = `invitations/${invitationId}`;
   const payload = {
     ...data,
     updatedAt: new Date().toISOString(),
   };
 
-  // 1. Immediately update local storage so UI is reactive and resilient
-  try {
-    localStorage.setItem(getCacheKey(invitationId), JSON.stringify(payload));
-  } catch (e) {
-    console.warn('Local storage write warning:', e);
-  }
+  // Deep sanitize to prevent any `undefined` values from failing setDoc
+  const sanitized = sanitizeForFirestore(payload);
 
-  // 2. Persist to cloud Firestore
-  const invDocRef = doc(db, 'invitations', invitationId);
-  await setDoc(invDocRef, payload, { merge: true });
+  try {
+    // 1. Persist directly to cloud Firestore first
+    const invDocRef = doc(db, 'invitations', invitationId);
+    await setDoc(invDocRef, sanitized, { merge: true });
+
+    // 2. Only after cloud save succeeds, update local storage cache
+    try {
+      localStorage.setItem(getCacheKey(invitationId), JSON.stringify(sanitized));
+    } catch (e) {
+      console.warn('Local storage write warning:', e);
+    }
+    console.log(`✅ [Firebase Cloud Sync] Successfully saved invitation "${invitationId}" to Firestore.`);
+  } catch (err) {
+    console.error(`❌ [Firebase Cloud Sync] Failed to save invitation "${invitationId}":`, err);
+    handleFirestoreError(err, OperationType.WRITE, path);
+  }
 }
 
 /**

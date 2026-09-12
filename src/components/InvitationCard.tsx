@@ -72,10 +72,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   }, []);
 
   const getShareableUrl = () => {
-    if (inviteId && inviteId !== 'main') {
-      return `${window.location.origin}${window.location.pathname}?invite=${encodeURIComponent(inviteId)}`;
-    }
-    return window.location.href;
+    const id = inviteId || 'main';
+    return `${window.location.origin}${window.location.pathname}?invite=${encodeURIComponent(id)}`;
   };
 
   const toggleAudio = () => {

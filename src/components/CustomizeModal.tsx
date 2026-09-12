@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Check,
   Clipboard,
+  AlertCircle,
 } from 'lucide-react';
 import { InvitationDetails, FamilyMember } from '../types';
 import { defaultInvitationData } from '../data/defaultData';
@@ -109,6 +110,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const [isCompressing, setIsCompressing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [pastedMapFeedback, setPastedMapFeedback] = useState(false);
@@ -142,6 +144,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
       setFormData({ ...data });
       setActiveTab(initialTab);
       setSaveSuccess(false);
+      setSaveError(null);
       setUploadError(null);
       setPastedMapFeedback(false);
     }
@@ -340,14 +343,20 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setSaveError(null);
     try {
       await onSave(formData);
       setSaveSuccess(true);
       setTimeout(() => {
         onClose();
-      }, 700);
+      }, 1000);
     } catch (err) {
-      console.error('Error saving invitation:', err);
+      console.error('Error saving invitation to cloud:', err);
+      setSaveError(
+        err instanceof Error
+          ? `क्लाऊड सेव्ह अयशस्वी: ${err.message}`
+          : 'क्लाऊडवर सेव्ह करताना त्रुटी आली. कृपया इंटरनेट तपासून पुन्हा प्रयत्न करा.'
+      );
     } finally {
       setIsSaving(false);
     }
@@ -1394,6 +1403,21 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                   className="w-full px-3 py-1.5 rounded-xl bg-[#04120a] border border-amber-500/30 text-white text-xs focus:outline-none focus:border-amber-400"
                 />
               </div>
+            </div>
+          )}
+
+          {/* Save Error Alert */}
+          {saveError && (
+            <div className="mb-2 p-2.5 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center gap-2 font-serif shrink-0">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <span className="flex-1">{saveError}</span>
+              <button
+                type="button"
+                onClick={() => setSaveError(null)}
+                className="text-stone-400 hover:text-white transition"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
 
