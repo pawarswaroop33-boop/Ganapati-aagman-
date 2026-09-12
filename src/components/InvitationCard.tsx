@@ -463,18 +463,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             <span>गुगल मॅप्स वर मार्ग पहा (Get Directions 📍)</span>
             <ExternalLink className="w-3.5 h-3.5 text-stone-950/70" />
           </a>
-
-          {/* Quick link to update map link in settings */}
-          <div className="mt-2.5 text-center">
-            <button
-              onClick={() => onOpenCustomize('details')}
-              className="inline-flex items-center gap-1.5 text-[11px] text-amber-300/70 hover:text-amber-200 font-serif transition py-1 px-2.5 rounded-lg hover:bg-amber-500/10 cursor-pointer"
-              title="सेटिंग्जमध्ये जाऊन गुगल मॅप्स लिंक बदला"
-            >
-              <Settings className="w-3 h-3 text-amber-400/80" />
-              <span>सेटिंग्जमध्ये लोकेशन लिंक बदला (Edit Map Link)</span>
-            </button>
-          </div>
         </motion.section>
 
         {/* ============================================================ */}
@@ -488,31 +476,19 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           viewport={{ once: false, amount: 0.16, margin: '0px 0px -55px 0px' }}
           className="relative rounded-3xl bg-gradient-to-b from-[#082215]/90 via-[#05190f] to-[#04120a] border border-[#d4af37]/40 p-4 sm:p-5 shadow-xl transform-gpu will-change-[filter,opacity,transform]"
         >
-          <div className="flex items-center justify-between mb-3.5 gap-2">
-            <div className="text-left">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-xs font-serif font-bold text-amber-300 tracking-wider">
-                  || क्षणचित्रे ||
-                </span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold font-yatra text-transparent bg-clip-text bg-gradient-to-r from-[#fff4b8] via-[#eab308] to-[#ca8a04]">
-                आगमनाची तयारी
-              </h2>
-              <p className="text-xs text-stone-300 font-serif mt-0.5">
-                बाप्पांच्या स्वागताची प्रेमळ तयारी
-              </p>
+          <div className="text-center mb-3.5">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs font-serif font-bold text-amber-300 tracking-wider">
+                || क्षणचित्रे ||
+              </span>
             </div>
-
-            {/* Quick edit button for preparation photos */}
-            <button
-              onClick={() => onOpenCustomize('preparations')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 hover:text-white text-[11px] font-serif font-bold transition shadow-sm active:scale-95 cursor-pointer shrink-0"
-              title="तयारीचे फोटो व माहिती बदला"
-            >
-              <Settings className="w-3 h-3 text-amber-400" />
-              <span>फोटो बदला</span>
-            </button>
+            <h2 className="text-2xl font-bold font-yatra text-transparent bg-clip-text bg-gradient-to-r from-[#fff4b8] via-[#eab308] to-[#ca8a04]">
+              आगमनाची तयारी
+            </h2>
+            <p className="text-xs text-stone-300 font-serif mt-0.5">
+              बाप्पांच्या स्वागताची प्रेमळ तयारी
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -543,17 +519,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Quick link below gallery */}
-          <div className="mt-3 text-center">
-            <button
-              onClick={() => onOpenCustomize('preparations')}
-              className="inline-flex items-center gap-1.5 text-[11px] text-amber-300/70 hover:text-amber-200 font-serif transition py-1 px-2.5 rounded-lg hover:bg-amber-500/10 cursor-pointer"
-            >
-              <Settings className="w-3 h-3 text-amber-400/80" />
-              <span>हे ४ फोटो आणि माहिती बदला (Edit 4 Photos & Text)</span>
-            </button>
           </div>
         </motion.section>
 
