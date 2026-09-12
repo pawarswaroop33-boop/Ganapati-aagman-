@@ -145,13 +145,13 @@ export default function App() {
         className={`w-full flex justify-center ${
           !isOpenDoor ? 'h-screen max-h-screen overflow-hidden pointer-events-none select-none' : ''
         }`}
-        initial={{ filter: 'blur(24px)', opacity: 0.2, scale: 0.95 }}
+        initial={{ filter: 'blur(24px)', opacity: 0.15, scale: 0.97 }}
         animate={
           isOpenDoor || isDoorOpening
             ? { filter: 'blur(0px)', opacity: 1, scale: 1 }
-            : { filter: 'blur(24px)', opacity: 0.2, scale: 0.95 }
+            : { filter: 'blur(24px)', opacity: 0.15, scale: 0.97 }
         }
-        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
       >
         <InvitationCard
           data={data}

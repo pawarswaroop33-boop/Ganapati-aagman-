@@ -33,13 +33,13 @@ interface InvitationCardProps {
 // Ultra-refined, cinematic optical lens reveal ("Upcoming is softly blurred -> smoothly resolves into crystal focus")
 const upcomingBlurVariant = {
   blurred: {
-    opacity: 0.28,
-    filter: 'blur(8px)',
-    y: 28,
-    scale: 0.975,
+    opacity: 0.32,
+    filter: 'blur(10px)',
+    y: 20,
+    scale: 0.98,
     transition: {
-      duration: 0.45,
-      ease: [0.25, 1, 0.5, 1],
+      duration: 0.6,
+      ease: [0.25, 0.1, 0.25, 1],
     },
   },
   focused: {
@@ -48,8 +48,8 @@ const upcomingBlurVariant = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.75,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.95,
+      ease: [0.22, 1, 0.36, 1],
     },
   },
 };
@@ -196,7 +196,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         <motion.section
           initial={{ opacity: 0, y: 15, filter: 'blur(16px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-center p-4 sm:p-5 pt-6 will-change-transform"
         >
           {/* Subtle golden ambient glow */}

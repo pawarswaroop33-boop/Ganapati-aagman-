@@ -50,13 +50,13 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
   const handleDoorClick = () => {
     if (isSwaying || isOpeningAnim || isOpen) return;
 
-    // 1. Trigger dramatic sway animation to door handles first
+    // 1. Trigger natural decaying sway animation to door handles first
     setIsSwaying(true);
 
     // Audio effects: Bell chime immediately as handles swing and strike
     templeAudio.ringBell();
 
-    // 2. After dramatic sway builds anticipation (480ms), start the grand majestic opening sequence
+    // 2. After knocker strike resonates naturally (520ms), commence the grand stately opening sequence
     setTimeout(() => {
       setIsOpeningAnim(true);
       if (onOpeningStart) {
@@ -71,14 +71,14 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
 
       // Start ambient devotional background music
       templeAudio.startDevotionalAmbient();
-    }, 480);
+    }, 520);
 
-    // 3. Complete transition into the patrika after doors part slowly and gracefully (2100ms)
+    // 3. Complete transition into the patrika after doors have fully swung open smoothly (3300ms total)
     setTimeout(() => {
       onOpen();
       setIsOpeningAnim(false);
       setIsSwaying(false);
-    }, 2100);
+    }, 3300);
   };
 
   return (
@@ -87,7 +87,7 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
         <motion.div
           key="temple-door-wrapper"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.75, ease: 'easeInOut' } }}
+          exit={{ opacity: 0, transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] } }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onWheel={(e) => e.stopPropagation()}
@@ -104,9 +104,9 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
             }}
             transition={{
               type: 'spring',
-              stiffness: 180,
-              damping: 22,
-              mass: 0.8,
+              stiffness: 100,
+              damping: 24,
+              mass: 1,
             }}
             style={{ transformStyle: 'preserve-3d' }}
             className="relative w-full h-full flex items-center justify-center pointer-events-auto"
@@ -135,33 +135,39 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               </button>
             )}
 
-            {/* Divine Sanctum Golden Radiance emerging as doors part slowly */}
+            {/* Divine Sanctum Golden Radiance emerging smoothly as doors part slowly */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.6 }}
+              initial={{ opacity: 0, scale: 0.5 }}
               animate={
                 isOpeningAnim
                   ? {
-                      opacity: [0, 0.95, 0],
-                      scale: [0.6, 2.6],
-                      transition: { duration: 1.7, ease: 'easeOut' },
+                      opacity: [0, 0.95, 0.6, 0],
+                      scale: [0.5, 1.3, 2.4, 3.6],
                     }
-                  : { opacity: 0, scale: 0.6 }
+                  : { opacity: 0, scale: 0.5 }
               }
-              className="absolute inset-0 m-auto w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(254,240,138,0.75)_0%,_rgba(245,158,11,0.45)_35%,_transparent_70%)] pointer-events-none z-10"
+              transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
+              className="absolute inset-0 m-auto w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(254,240,138,0.8)_0%,_rgba(245,158,11,0.5)_35%,_transparent_72%)] pointer-events-none z-10"
             />
 
-            {/* Left Door Panel */}
+            {/* Left Door Panel - Heavy Carved Teakwood Swing Physics */}
             <motion.div
               initial={{ x: 0, rotateY: 0 }}
               animate={
                 isOpeningAnim
-                  ? { x: '-110%', rotateY: -18 }
+                  ? { x: '-106%', rotateY: -34 }
                   : { x: 0, rotateY: 0 }
               }
-              transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
               style={{ transformOrigin: 'left center' }}
               className="absolute left-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-[#031008] via-[#082217] to-[#0a291b] border-r border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden will-change-transform z-20"
             >
+              {/* Dynamic light falloff shadow as door panel swings outward */}
+              <motion.div
+                animate={{ opacity: isOpeningAnim ? 0.45 : 0 }}
+                transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-black/25 to-black/75 pointer-events-none z-10"
+              />
               {/* Traditional filigree vertical borders */}
               <div className="absolute top-0 bottom-0 right-3 w-1 bg-gradient-to-b from-[#ca8a04] via-[#fef08a] to-[#ca8a04] opacity-80" />
               <div className="absolute top-4 bottom-4 right-7 w-px border-r border-dashed border-[#d4af37]/35" />
@@ -203,28 +209,28 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
                   </div>
                 </div>
 
-                {/* Swinging Brass Drop Ring with Dramatic Sway Animation */}
+                {/* Swinging Brass Drop Ring with Natural Decaying Sway Physics */}
                 <motion.div
                   style={{ transformOrigin: 'top center' }}
                   animate={
                     isSwaying
                       ? {
-                          rotate: [0, -42, 36, -26, 18, -10, 4, 0],
+                          rotate: [0, -26, 20, -12, 7, -3, 1, 0],
                         }
                       : {
-                          rotate: [0, -2, 2, -1, 0],
+                          rotate: [0, -1.5, 1.5, 0],
                         }
                   }
                   transition={
                     isSwaying
                       ? {
-                          duration: 0.6,
-                          ease: [0.36, 0, 0.66, -0.56],
+                          duration: 1.1,
+                          ease: [0.25, 0.1, 0.25, 1],
                         }
                       : {
                           repeat: Infinity,
                           repeatType: 'reverse',
-                          duration: 3,
+                          duration: 4.5,
                           ease: 'easeInOut',
                         }
                   }
@@ -258,18 +264,24 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               </div>
             </motion.div>
 
-            {/* Right Door Panel */}
+            {/* Right Door Panel - Heavy Carved Teakwood Swing Physics */}
             <motion.div
               initial={{ x: 0, rotateY: 0 }}
               animate={
                 isOpeningAnim
-                  ? { x: '110%', rotateY: 18 }
+                  ? { x: '106%', rotateY: 34 }
                   : { x: 0, rotateY: 0 }
               }
-              transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
               style={{ transformOrigin: 'right center' }}
               className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#031008] via-[#082217] to-[#0a291b] border-l border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden items-end will-change-transform z-20"
             >
+              {/* Dynamic light falloff shadow as door panel swings outward */}
+              <motion.div
+                animate={{ opacity: isOpeningAnim ? 0.45 : 0 }}
+                transition={{ duration: 2.8, ease: [0.32, 0.08, 0.24, 1] }}
+                className="absolute inset-0 bg-gradient-to-l from-transparent via-black/25 to-black/75 pointer-events-none z-10"
+              />
               {/* Traditional filigree vertical borders */}
               <div className="absolute top-0 bottom-0 left-3 w-1 bg-gradient-to-b from-[#ca8a04] via-[#fef08a] to-[#ca8a04] opacity-80" />
               <div className="absolute top-4 bottom-4 left-7 w-px border-l border-dashed border-[#d4af37]/35" />
@@ -309,28 +321,28 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
                   </div>
                 </div>
 
-                {/* Swinging Brass Drop Ring with Dramatic Sway Animation */}
+                {/* Swinging Brass Drop Ring with Natural Decaying Sway Physics */}
                 <motion.div
                   style={{ transformOrigin: 'top center' }}
                   animate={
                     isSwaying
                       ? {
-                          rotate: [0, 42, -36, 26, -18, 10, -4, 0],
+                          rotate: [0, 26, -20, 12, -7, 3, -1, 0],
                         }
                       : {
-                          rotate: [0, 2, -2, 1, 0],
+                          rotate: [0, 1.5, -1.5, 0],
                         }
                   }
                   transition={
                     isSwaying
                       ? {
-                          duration: 0.6,
-                          ease: [0.36, 0, 0.66, -0.56],
+                          duration: 1.1,
+                          ease: [0.25, 0.1, 0.25, 1],
                         }
                       : {
                           repeat: Infinity,
                           repeatType: 'reverse',
-                          duration: 3,
+                          duration: 4.5,
                           ease: 'easeInOut',
                         }
                   }
@@ -368,10 +380,15 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
             <motion.div
               animate={
                 isOpeningAnim
-                  ? { opacity: 0, scale: 1.15, filter: 'blur(10px)', pointerEvents: 'none' as const }
+                  ? {
+                      opacity: [1, 0.9, 0],
+                      scale: [1, 1.08, 1.2],
+                      filter: ['blur(0px)', 'blur(3px)', 'blur(16px)'],
+                      pointerEvents: 'none' as const,
+                    }
                   : { opacity: 1, scale: 1, filter: 'blur(0px)' }
               }
-              transition={{ duration: 0.65, ease: 'easeOut' }}
+              transition={{ duration: 1.4, ease: [0.32, 0.08, 0.24, 1] }}
               className="relative z-50 flex flex-col items-center pointer-events-auto"
             >
               {/* Top Invocation text above seal */}

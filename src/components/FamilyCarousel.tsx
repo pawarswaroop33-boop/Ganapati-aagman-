@@ -86,28 +86,33 @@ export const FamilyCarousel: React.FC<FamilyCarouselProps> = ({
 
   const slideVariants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 70 : -70,
+      x: dir > 0 ? 50 : -50,
       opacity: 0,
-      scale: 0.94,
+      scale: 0.96,
+      filter: 'blur(4px)',
     }),
     center: {
       x: 0,
       opacity: 1,
       scale: 1,
+      filter: 'blur(0px)',
       transition: {
-        x: { type: 'spring', stiffness: 300, damping: 30 },
-        opacity: { duration: 0.35 },
-        scale: { duration: 0.35 },
+        x: { type: 'spring', stiffness: 190, damping: 25, mass: 0.8 },
+        opacity: { duration: 0.42, ease: [0.25, 0.1, 0.25, 1] },
+        scale: { duration: 0.42, ease: [0.25, 0.1, 0.25, 1] },
+        filter: { duration: 0.35, ease: 'easeOut' },
       },
     },
     exit: (dir: number) => ({
-      x: dir > 0 ? -70 : 70,
+      x: dir > 0 ? -50 : 50,
       opacity: 0,
-      scale: 0.94,
+      scale: 0.96,
+      filter: 'blur(4px)',
       transition: {
-        x: { type: 'spring', stiffness: 300, damping: 30 },
-        opacity: { duration: 0.25 },
-        scale: { duration: 0.25 },
+        x: { type: 'spring', stiffness: 190, damping: 25, mass: 0.8 },
+        opacity: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] },
+        scale: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] },
+        filter: { duration: 0.25, ease: 'easeIn' },
       },
     }),
   };
