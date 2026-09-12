@@ -15,10 +15,10 @@ export default function App() {
   const [isDoorOpening, setIsDoorOpening] = useState(false);
   const [data, setData] = useState<InvitationDetails>(defaultInvitationData);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
-  const [customizeTab, setCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details'>('door');
+  const [customizeTab, setCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details' | 'preparations'>('door');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [pendingCustomizeTab, setPendingCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details'>('door');
+  const [pendingCustomizeTab, setPendingCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details' | 'preparations'>('door');
   const [burstTrigger, setBurstTrigger] = useState(0);
   const [isSavedInCloud, setIsSavedInCloud] = useState(false);
 
@@ -92,7 +92,7 @@ export default function App() {
     setBurstTrigger((prev) => prev + 1);
   };
 
-  const handleOpenCustomizeWithTab = (tab: 'door' | 'photos' | 'family' | 'details' = 'door') => {
+  const handleOpenCustomizeWithTab = (tab: 'door' | 'photos' | 'family' | 'details' | 'preparations' = 'door') => {
     setPendingCustomizeTab(tab);
     if (isAdminUnlocked) {
       setCustomizeTab(tab);

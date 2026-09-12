@@ -10,7 +10,7 @@ interface TempleDoorProps {
   onShower?: () => void;
   familyHeading: string;
   familyName: string;
-  onOpenCustomize?: (tab?: 'door' | 'photos' | 'family' | 'details') => void;
+  onOpenCustomize?: (tab?: 'door' | 'photos' | 'family' | 'details' | 'preparations') => void;
 }
 
 export const TempleDoor: React.FC<TempleDoorProps> = ({

@@ -16,18 +16,22 @@ import {
   Phone,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  ExternalLink,
+  Check,
+  Clipboard,
 } from 'lucide-react';
 import { InvitationDetails, FamilyMember } from '../types';
 import { defaultInvitationData } from '../data/defaultData';
 import { compressImageFile } from '../utils/firebase';
+import { normalizeGoogleMapsUrl } from '../utils/navigation';
 
 interface CustomizeModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: InvitationDetails;
   onSave: (updated: InvitationDetails) => Promise<void> | void;
-  initialTab?: 'door' | 'photos' | 'family' | 'details';
+  initialTab?: 'door' | 'photos' | 'family' | 'details' | 'preparations';
 }
 
 // Curated authentic Ganapati Bappa murtis presets for quick selection
@@ -50,6 +54,46 @@ const BAPPA_PRESETS = [
   },
 ];
 
+// Curated preparation moments presets for quick selection
+const PREPARATION_PRESETS = [
+  {
+    label: '🥟 उकडीचे मोदक',
+    title: 'उकडीचे मोदक तयारी',
+    description: 'गुळ, खोबरे आणि जायफळाच्या सुगंधात अस्सल घरगुती मोदक.',
+    url: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    label: '🌺 मखर व सजावट',
+    title: 'पारंपारिक मखर व सजावट',
+    description: 'झेंडूची फुले आणि दिव्यांच्या रोषणाईने सजलेले सुंदर मखर.',
+    url: 'https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    label: '🕉️ बाप्पांची मूर्ती',
+    title: 'बाप्पांची मूर्ती निवड',
+    description: 'पेणच्या सुप्रसिद्ध मूर्तिकारांकडून निवडलेली मनमोहक शाडूची मूर्ती.',
+    url: 'https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    label: '🪔 दीप व रांगोळी',
+    title: 'दीप प्रज्वलन व रांगोळी',
+    description: 'प्रवेशद्वारावर काढलेली आकर्षक संस्कारभारती रांगोळी व समईचे तेज.',
+    url: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    label: '🥁 वाजत-गाजत आगमन',
+    title: 'ढोल ताशा आगमन',
+    description: 'ढोल-ताशांच्या गजरात आणि गुलालाच्या उधळणीत बाप्पांचे स्वागत.',
+    url: 'https://images.unsplash.com/photo-1567591974584-f1832d98c6a0?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    label: '📿 महापूजा व आरती',
+    title: 'महापूजा व नैवेद्य',
+    description: 'वेदोक्त मंत्रोच्चार आणि सुगंधी धूप-दीपाने बाप्पांची भावपूर्ण पूजा.',
+    url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=800&q=80',
+  },
+];
+
 export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   isOpen,
   onClose,
@@ -58,7 +102,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   initialTab = 'door',
 }) => {
   const [formData, setFormData] = useState<InvitationDetails>({ ...data });
-  const [activeTab, setActiveTab] = useState<'door' | 'photos' | 'family' | 'details'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'door' | 'photos' | 'family' | 'details' | 'preparations'>(initialTab);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('');
   const [newMemberPhotoUrl, setNewMemberPhotoUrl] = useState('');
@@ -67,6 +111,31 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [pastedMapFeedback, setPastedMapFeedback] = useState(false);
+
+  const handlePasteMapUrl = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setFormData((prev) => ({ ...prev, googleMapsUrl: text.trim() }));
+          setPastedMapFeedback(true);
+          setTimeout(() => setPastedMapFeedback(false), 2200);
+        }
+      }
+    } catch (err) {
+      console.warn('Clipboard read error (permission or iframe):', err);
+    }
+  };
+
+  const handleTestMapUrl = () => {
+    const destination = normalizeGoogleMapsUrl(
+      formData.googleMapsUrl,
+      formData.venueName,
+      formData.fullAddress
+    );
+    window.open(destination, '_blank', 'noopener,noreferrer');
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -74,6 +143,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
       setActiveTab(initialTab);
       setSaveSuccess(false);
       setUploadError(null);
+      setPastedMapFeedback(false);
     }
   }, [isOpen, initialTab, data]);
 
@@ -150,6 +220,123 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
     }));
   };
 
+  // Preparation photos (आगमनाची तयारी) handlers
+  const handlePreparationFileUpload = async (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+    setIsCompressing(`prep-${index}`);
+    try {
+      const compressedDataUrl = await compressImageFile(file, 850, 0.82);
+      setFormData((prev) => {
+        const currentList =
+          prev.preparations && prev.preparations.length > 0
+            ? [...prev.preparations]
+            : [...defaultInvitationData.preparations];
+
+        while (currentList.length <= index) {
+          currentList.push({
+            id: `p${currentList.length + 1}`,
+            title: `तयारी फोटो ${currentList.length + 1}`,
+            description: 'बाप्पांच्या आगमनाची प्रेमळ तयारी.',
+            imageUrl: '',
+          });
+        }
+
+        currentList[index] = {
+          ...currentList[index],
+          imageUrl: compressedDataUrl,
+        };
+
+        return {
+          ...prev,
+          preparations: currentList,
+        };
+      });
+    } catch (err) {
+      console.error('Preparation image compression error:', err);
+      setUploadError(err instanceof Error ? err.message : 'तयारीचा फोटो अपलोड करताना त्रुटी आली');
+    } finally {
+      setIsCompressing(null);
+    }
+  };
+
+  const handlePreparationFieldChange = (
+    index: number,
+    field: 'title' | 'description' | 'imageUrl',
+    value: string
+  ) => {
+    setFormData((prev) => {
+      const currentList =
+        prev.preparations && prev.preparations.length > 0
+          ? [...prev.preparations]
+          : [...defaultInvitationData.preparations];
+
+      while (currentList.length <= index) {
+        currentList.push({
+          id: `p${currentList.length + 1}`,
+          title: `तयारी फोटो ${currentList.length + 1}`,
+          description: 'बाप्पांच्या आगमनाची प्रेमळ तयारी.',
+          imageUrl: '',
+        });
+      }
+
+      currentList[index] = {
+        ...currentList[index],
+        [field]: value,
+      };
+
+      return {
+        ...prev,
+        preparations: currentList,
+      };
+    });
+  };
+
+  const handleApplyPreparationPreset = (
+    index: number,
+    preset: { title: string; description: string; url: string }
+  ) => {
+    setFormData((prev) => {
+      const currentList =
+        prev.preparations && prev.preparations.length > 0
+          ? [...prev.preparations]
+          : [...defaultInvitationData.preparations];
+
+      while (currentList.length <= index) {
+        currentList.push({
+          id: `p${currentList.length + 1}`,
+          title: '',
+          description: '',
+          imageUrl: '',
+        });
+      }
+
+      currentList[index] = {
+        ...currentList[index],
+        title: preset.title,
+        description: preset.description,
+        imageUrl: preset.url,
+      };
+
+      return {
+        ...prev,
+        preparations: currentList,
+      };
+    });
+  };
+
+  const handleResetAllPreparations = () => {
+    setFormData((prev) => ({
+      ...prev,
+      preparations: [...defaultInvitationData.preparations],
+    }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -200,54 +387,66 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-4 gap-1 my-3 p-1 rounded-2xl bg-[#030e07] border border-amber-500/20 shrink-0">
+        <div className="grid grid-cols-5 gap-1 my-3 p-1 rounded-2xl bg-[#030e07] border border-amber-500/20 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('door')}
-            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+            className={`py-1.5 px-0.5 sm:px-1.5 rounded-xl text-[10px] sm:text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center ${
               activeTab === 'door'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
             <span>🚪</span>
-            <span className="truncate">नाव व सुरक्षा</span>
+            <span className="truncate">नाव/सुरक्षा</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('photos')}
-            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+            className={`py-1.5 px-0.5 sm:px-1.5 rounded-xl text-[10px] sm:text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center ${
               activeTab === 'photos'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
             <Camera className="w-3 h-3 shrink-0" />
-            <span className="truncate">२ फोटो</span>
+            <span className="truncate">२ मुख्य फोटो</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('family')}
-            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+            className={`py-1.5 px-0.5 sm:px-1.5 rounded-xl text-[10px] sm:text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center ${
               activeTab === 'family'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
             <Users className="w-3 h-3 shrink-0" />
-            <span className="truncate">कुटुंब सदस्य</span>
+            <span className="truncate">कुटुंब</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('preparations')}
+            className={`py-1.5 px-0.5 sm:px-1.5 rounded-xl text-[10px] sm:text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center ${
+              activeTab === 'preparations'
+                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
+                : 'text-stone-300 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-3 h-3 shrink-0" />
+            <span className="truncate">तयारी (४ फोटो)</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('details')}
-            className={`py-1.5 px-1.5 rounded-xl text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1 text-center ${
+            className={`py-1.5 px-0.5 sm:px-1.5 rounded-xl text-[10px] sm:text-[11px] font-serif font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center ${
               activeTab === 'details'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                 : 'text-stone-300 hover:text-white'
             }`}
           >
-            <Calendar className="w-3 h-3 shrink-0" />
-            <span className="truncate">स्थळ व वेळ</span>
+            <MapPin className="w-3 h-3 shrink-0" />
+            <span className="truncate">स्थळ व नकाशा</span>
           </button>
         </div>
 
@@ -412,6 +611,28 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                   * बदल जतन करण्यासाठी खालील <strong>'बदल जतन करा'</strong> बटणावर नक्की क्लिक करा.
                 </p>
               </div>
+
+              {/* Quick Jump to Map Location Link */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('details')}
+                className="w-full p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-between text-left transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <MapPin className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold font-serif text-amber-200">
+                      गुगल मॅप्स लोकेशन लिंक (Google Maps Location Link)
+                    </p>
+                    <p className="text-[10px] text-stone-300 font-serif">
+                      'Get Directions' बटणासाठी लिंक सेट किंवा पेस्ट करण्यासाठी टॅप करा
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-amber-300 font-serif font-bold shrink-0">बदला →</span>
+              </button>
             </div>
           )}
           {/* ======================================================== */}
@@ -594,6 +815,28 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Quick Link to Preparations Gallery */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('preparations')}
+                className="w-full p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-between text-left transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold font-serif text-amber-200">
+                      आगमनाची तयारी (४ फोटो व माहिती) बदला
+                    </p>
+                    <p className="text-[10px] text-stone-300 font-serif">
+                      मोदक, मखर, मूर्ती व रांगोळीचे खालील ४ फोटो कस्टमाईज करा
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-amber-300 font-serif font-bold shrink-0">बदला →</span>
+              </button>
             </div>
           )}
 
@@ -776,6 +1019,181 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
           )}
 
           {/* ======================================================== */}
+          {/* TAB: आगमनाची तयारी (4 PREPARATION PHOTOS & TEXTS)        */}
+          {/* ======================================================== */}
+          {activeTab === 'preparations' && (
+            <div className="space-y-4">
+              {/* Informational & Cloud Guarantee Header */}
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-600/10 to-transparent border border-amber-500/30">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-xs sm:text-sm font-bold font-serif text-amber-200 flex items-center gap-1.5">
+                    <span>🪔</span>
+                    <span>आगमनाची तयारी (४ फोटो व माहिती)</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleResetAllPreparations}
+                    className="inline-flex items-center gap-1 text-[10px] text-amber-300/80 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2 py-1 rounded-lg transition"
+                    title="४ फोटो मूळ स्वरूपात आणा"
+                  >
+                    <RotateCcw className="w-2.5 h-2.5" />
+                    <span>पूर्ववत करा</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-stone-300 font-serif mt-1 leading-relaxed">
+                  पत्रिकेच्या शेवटी 'आगमनाची तयारी' या विभागात दर्शविले जाणारे ४ फोटो, त्यांचे शीर्षक (Title) आणि माहिती (Description) आपल्या आवडीनुसार बदला.
+                </p>
+              </div>
+
+              {uploadError && (
+                <div className="p-2 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs font-serif">
+                  ⚠️ {uploadError}
+                </div>
+              )}
+
+              {/* 4 Preparation Photo Cards */}
+              <div className="space-y-3.5">
+                {(formData.preparations && formData.preparations.length > 0
+                  ? formData.preparations
+                  : defaultInvitationData.preparations
+                ).map((prep, idx) => (
+                  <div
+                    key={prep.id || idx}
+                    className="p-3.5 rounded-2xl bg-[#04120a] border border-amber-500/30 shadow-md space-y-3"
+                  >
+                    {/* Card Header with Number Badge */}
+                    <div className="flex items-center justify-between border-b border-amber-500/15 pb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-amber-500/25 border border-amber-400/50 flex items-center justify-center text-amber-300 font-bold text-xs font-serif">
+                          {idx === 0 ? '१' : idx === 1 ? '२' : idx === 2 ? '३' : '४'}
+                        </div>
+                        <span className="text-xs font-bold font-serif text-amber-200 truncate">
+                          फोटो {idx + 1}: {prep.title || `तयारी क्षणचित्र ${idx + 1}`}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-amber-400/70 font-serif">
+                        क्षणचित्र #{idx + 1}
+                      </span>
+                    </div>
+
+                    {/* Image Preview & Upload Controls */}
+                    <div className="flex gap-3 items-center">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 border-amber-400/60 shrink-0 bg-stone-900 shadow-md">
+                        <img
+                          src={prep.imageUrl}
+                          alt={prep.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80';
+                          }}
+                        />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/75 text-[9px] text-center text-amber-200 py-0.5 font-serif truncate px-1">
+                          फोटो {idx + 1}
+                        </div>
+                        {isCompressing === `prep-${idx}` && (
+                          <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-[9px] text-amber-300 font-serif p-1 text-center">
+                            <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mb-1" />
+                            <span>अपलोड होत आहे...</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 space-y-2">
+                        {/* File Upload Button */}
+                        <label
+                          className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed text-xs font-bold font-serif transition active:scale-95 cursor-pointer ${
+                            isCompressing === `prep-${idx}`
+                              ? 'bg-stone-800 text-stone-400 border-stone-600 pointer-events-none'
+                              : 'bg-gradient-to-r from-amber-500/20 to-amber-600/30 border-amber-400 text-amber-300 hover:bg-amber-500/30'
+                          }`}
+                        >
+                          <Upload className="w-3.5 h-3.5 text-amber-400" />
+                          <span>
+                            {isCompressing === `prep-${idx}`
+                              ? 'फोटो तयार होत आहे...'
+                              : 'गॅलरीतून फोटो निवडा'}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={isCompressing !== null}
+                            className="hidden"
+                            onChange={(e) => handlePreparationFileUpload(idx, e)}
+                          />
+                        </label>
+
+                        {/* Image URL input */}
+                        <input
+                          type="text"
+                          value={prep.imageUrl}
+                          onChange={(e) =>
+                            handlePreparationFieldChange(idx, 'imageUrl', e.target.value)
+                          }
+                          placeholder="किंवा फोटो URL पेस्ट करा"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#071a10] border border-amber-500/25 text-white text-[11px] focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Title & Description Inputs */}
+                    <div className="space-y-2 pt-1 border-t border-amber-500/10">
+                      <div>
+                        <label className="block text-amber-200 font-serif text-[11px] font-bold mb-1">
+                          फोटोचे नाव / शीर्षक (Title) <span className="text-amber-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={prep.title}
+                          onChange={(e) =>
+                            handlePreparationFieldChange(idx, 'title', e.target.value)
+                          }
+                          placeholder="उदा. उकडीचे मोदक तयारी"
+                          className="w-full px-3 py-1.5 rounded-xl bg-[#071a10] border border-amber-500/30 text-white text-xs font-semibold focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-amber-200 font-serif text-[11px] font-bold mb-1">
+                          माहिती / वर्णन (Description)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={prep.description}
+                          onChange={(e) =>
+                            handlePreparationFieldChange(idx, 'description', e.target.value)
+                          }
+                          placeholder="उदा. गुळ, खोबरे आणि जायफळाच्या सुगंधात अस्सल घरगुती मोदक."
+                          className="w-full px-3 py-1.5 rounded-xl bg-[#071a10] border border-amber-500/30 text-stone-200 text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Presets for this item */}
+                    <div className="pt-2 border-t border-amber-500/10">
+                      <p className="text-[10px] text-amber-300/80 font-serif mb-1">
+                        किंवा लोकप्रिय पर्याय निवडा (Quick Preset):
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PREPARATION_PRESETS.map((preset, pIdx) => (
+                          <button
+                            type="button"
+                            key={pIdx}
+                            onClick={() => handleApplyPreparationPreset(idx, preset)}
+                            className="text-[10px] font-serif px-2 py-1 rounded-lg border border-amber-500/25 bg-[#05170e] hover:bg-amber-500/20 text-stone-300 hover:text-amber-200 transition"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
           {/* TAB 3: ADDRESS, DATES & INVITATION MESSAGE              */}
           {/* ======================================================== */}
           {activeTab === 'details' && (
@@ -834,6 +1252,103 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                     }
                     className="w-full px-3 py-1.5 rounded-xl bg-[#04120a] border border-amber-500/30 text-white text-xs focus:outline-none focus:border-amber-400"
                   />
+                </div>
+              </div>
+
+              {/* GOOGLE MAPS LOCATION URL (GET DIRECTIONS BUTTON LINK) */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-b from-[#062013] to-[#031109] border border-amber-500/40 shadow-lg space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold font-serif text-amber-200 flex items-center gap-1.5">
+                        <span>गुगल मॅप्स लोकेशन लिंक (Google Maps Link)</span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-sans font-bold border border-emerald-500/30">
+                          Get Directions 📍
+                        </span>
+                      </h4>
+                      <p className="text-[10px] text-stone-300 font-serif">
+                        पाहुण्यांनी 'गुगल मॅप्स वर मार्ग पहा' बटण दाबल्यावर ही लिंक थेट उघडेल
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Input with Paste & Clear Controls */}
+                <div className="space-y-1.5">
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      value={formData.googleMapsUrl || ''}
+                      onChange={(e) =>
+                        setFormData({ ...formData, googleMapsUrl: e.target.value })
+                      }
+                      placeholder="उदा. https://maps.app.goo.gl/... किंवा https://goo.gl/maps/..."
+                      className="w-full pl-3 pr-24 py-2 rounded-xl bg-[#020b05] border border-amber-400/50 text-amber-100 text-xs font-mono focus:outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
+                    />
+
+                    <div className="absolute right-1.5 flex items-center gap-1">
+                      {formData.googleMapsUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, googleMapsUrl: '' })}
+                          className="px-1.5 py-0.5 text-[10px] text-stone-400 hover:text-rose-300 transition cursor-pointer"
+                          title="लिंक पुसा"
+                        >
+                          ✕
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={handlePasteMapUrl}
+                        className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-serif font-bold transition flex items-center gap-1 border border-amber-500/30 active:scale-95 cursor-pointer"
+                        title="क्लिपबोर्डवरून लिंक पेस्ट करा"
+                      >
+                        <Clipboard className="w-3 h-3" />
+                        <span>{pastedMapFeedback ? 'पेस्ट केले!' : 'पेस्ट करा'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Actions Row: Test Link & Status */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-serif text-stone-300">
+                      {formData.googleMapsUrl?.trim() ? (
+                        <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>लिंक यशस्वीरित्या जोडली आहे</span>
+                        </span>
+                      ) : (
+                        <span className="text-amber-400/80 italic text-[10px]">
+                          * लिंक नसल्यास पत्त्यावरून आपोआप मॅप सर्च उघडेल
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleTestMapUrl}
+                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-[11px] font-serif font-bold transition flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                    >
+                      <ExternalLink className="w-3 h-3 text-amber-400" />
+                      <span>नकाशा तपासा (Test Link)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Helpful Guide on how to copy map link */}
+                <div className="p-2.5 rounded-xl bg-black/40 border border-amber-500/20 text-[10px] sm:text-[11px] text-stone-300 font-serif leading-relaxed">
+                  <p className="font-bold text-amber-300 mb-1 flex items-center gap-1">
+                    <span>💡</span>
+                    <span>गुगल मॅप्स लिंक कशी मिळवायची?</span>
+                  </p>
+                  <ol className="list-decimal list-inside space-y-0.5 text-stone-300/90 pl-1">
+                    <li>मोबाईलमध्ये <strong>Google Maps</strong> ॲप उघडून तुमच्या घराचे/मंडपाचे नाव शोधा.</li>
+                    <li>खालील <strong>'Share' (शेअर)</strong> बटणावर टॅप करा आणि <strong>'Copy link' (लिंक कॉपी करा)</strong> निवडा.</li>
+                    <li>येथे वरील बॉक्समध्ये लिंक पेस्ट करा आणि खाली <strong>'बदल जतन करा'</strong> बटण दाबा.</li>
+                  </ol>
                 </div>
               </div>
 
