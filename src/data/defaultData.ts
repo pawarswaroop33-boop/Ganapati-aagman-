@@ -28,35 +28,49 @@ export const defaultInvitationData: InvitationDetails = {
       id: '1',
       name: 'श्री. राजेश देशपांडे',
       relation: 'कुटुंबप्रमुख / मुख्य निमंत्रक',
+      photoUrl:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
       blessing: 'बाप्पांच्या कृपेने सर्वांचे जीवन सुख-समृद्धीने भरून जावो!',
     },
     {
       id: '2',
       name: 'सौ. सुवर्णा देशपांडे',
       relation: 'सहधर्मचारिणी',
+      photoUrl:
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
       blessing: 'आपल्या सदिच्छा व स्नेहाने आमचा आनंद द्विगुणित होईल.',
     },
     {
       id: '3',
       name: 'चि. कौस्तुभ देशपांडे',
       relation: 'पुत्र',
+      photoUrl:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
       blessing: 'गणपती बाप्पा मोरया! सर्व मित्रपरिवाराचे मनापासून स्वागत.',
     },
     {
       id: '4',
       name: 'कु. तन्वी देशपांडे',
       relation: 'कन्या',
+      photoUrl:
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
       blessing: 'बाप्पांच्या आगमनाचा मंगलमय उत्साह!',
     },
     {
       id: '5',
       name: 'श्री. विनायक देशपांडे',
       relation: 'ज्येष्ठ सदस्य',
+      photoUrl:
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=800&q=80',
+      blessing: 'सुखकर्ता श्री विघ्नहर्त्याचे शुभाशीर्वाद सदैव लाभोत.',
     },
     {
       id: '6',
       name: 'समस्त देशपांडे परिवार',
       relation: 'स्नेही व आप्तेष्ट',
+      photoUrl:
+        'https://images.unsplash.com/photo-1609234656388-0ff363383899?auto=format&fit=crop&w=800&q=80',
+      blessing: 'आपली उपस्थिती प्रार्थनीय आहे.',
     },
   ],
   schedule: [

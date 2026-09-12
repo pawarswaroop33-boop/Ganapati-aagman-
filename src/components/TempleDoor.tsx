@@ -6,15 +6,17 @@ import { templeAudio } from '../utils/audio';
 interface TempleDoorProps {
   isOpen: boolean;
   onOpen: () => void;
+  onOpeningStart?: () => void;
   onShower?: () => void;
-  familyHeading?: string;
-  familyName?: string;
+  familyHeading: string;
+  familyName: string;
   onOpenCustomize?: (tab?: 'door' | 'photos' | 'family' | 'details') => void;
 }
 
 export const TempleDoor: React.FC<TempleDoorProps> = ({
   isOpen,
   onOpen,
+  onOpeningStart,
   onShower,
   familyHeading = 'देशपांडे परिवाराकडून',
   familyName = 'देशपांडे परिवार',
@@ -54,9 +56,12 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
     // Audio effects: Bell chime immediately as handles swing and strike
     templeAudio.ringBell();
 
-    // 2. After dramatic sway builds dramatic anticipation (500ms), start the grand opening sequence
+    // 2. After dramatic sway builds anticipation (480ms), start the grand majestic opening sequence
     setTimeout(() => {
       setIsOpeningAnim(true);
+      if (onOpeningStart) {
+        onOpeningStart();
+      }
 
       // Iconic Maharashtrian Tutari Fanfare heralding Ganapati Bappa's Aagman
       templeAudio.playTutari();
@@ -66,14 +71,14 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
 
       // Start ambient devotional background music
       templeAudio.startDevotionalAmbient();
-    }, 520);
+    }, 480);
 
-    // 3. Complete transition into the patrika
+    // 3. Complete transition into the patrika after doors part slowly and gracefully (2100ms)
     setTimeout(() => {
       onOpen();
       setIsOpeningAnim(false);
       setIsSwaying(false);
-    }, 1250);
+    }, 2100);
   };
 
   return (
@@ -82,7 +87,7 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
         <motion.div
           key="temple-door-wrapper"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
+          exit={{ opacity: 0, transition: { duration: 0.75, ease: 'easeInOut' } }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onWheel={(e) => e.stopPropagation()}
@@ -130,17 +135,32 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               </button>
             )}
 
+            {/* Divine Sanctum Golden Radiance emerging as doors part slowly */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={
+                isOpeningAnim
+                  ? {
+                      opacity: [0, 0.95, 0],
+                      scale: [0.6, 2.6],
+                      transition: { duration: 1.7, ease: 'easeOut' },
+                    }
+                  : { opacity: 0, scale: 0.6 }
+              }
+              className="absolute inset-0 m-auto w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(254,240,138,0.75)_0%,_rgba(245,158,11,0.45)_35%,_transparent_70%)] pointer-events-none z-10"
+            />
+
             {/* Left Door Panel */}
             <motion.div
               initial={{ x: 0, rotateY: 0 }}
               animate={
                 isOpeningAnim
-                  ? { x: '-105%', rotateY: -16 }
+                  ? { x: '-110%', rotateY: -18 }
                   : { x: 0, rotateY: 0 }
               }
-              transition={{ duration: 0.85, ease: [0.25, 1, 0.5, 1] }}
+              transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
               style={{ transformOrigin: 'left center' }}
-              className="absolute left-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-[#031008] via-[#082217] to-[#0a291b] border-r border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden will-change-transform"
+              className="absolute left-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-[#031008] via-[#082217] to-[#0a291b] border-r border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden will-change-transform z-20"
             >
               {/* Traditional filigree vertical borders */}
               <div className="absolute top-0 bottom-0 right-3 w-1 bg-gradient-to-b from-[#ca8a04] via-[#fef08a] to-[#ca8a04] opacity-80" />
@@ -243,12 +263,12 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               initial={{ x: 0, rotateY: 0 }}
               animate={
                 isOpeningAnim
-                  ? { x: '105%', rotateY: 16 }
+                  ? { x: '110%', rotateY: 18 }
                   : { x: 0, rotateY: 0 }
               }
-              transition={{ duration: 0.85, ease: [0.25, 1, 0.5, 1] }}
+              transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
               style={{ transformOrigin: 'right center' }}
-              className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#031008] via-[#082217] to-[#0a291b] border-l border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden items-end will-change-transform"
+              className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#031008] via-[#082217] to-[#0a291b] border-l border-[#d4af37]/60 shadow-2xl flex flex-col justify-between p-5 sm:p-10 overflow-hidden items-end will-change-transform z-20"
             >
               {/* Traditional filigree vertical borders */}
               <div className="absolute top-0 bottom-0 left-3 w-1 bg-gradient-to-b from-[#ca8a04] via-[#fef08a] to-[#ca8a04] opacity-80" />
@@ -344,8 +364,16 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
               </div>
             </motion.div>
 
-            {/* Center Ornate Golden Seal / Lock */}
-            <div className="relative z-50 flex flex-col items-center pointer-events-auto">
+            {/* Center Ornate Golden Seal / Lock with Graceful Blur-Dissolve on Opening */}
+            <motion.div
+              animate={
+                isOpeningAnim
+                  ? { opacity: 0, scale: 1.15, filter: 'blur(10px)', pointerEvents: 'none' as const }
+                  : { opacity: 1, scale: 1, filter: 'blur(0px)' }
+              }
+              transition={{ duration: 0.65, ease: 'easeOut' }}
+              className="relative z-50 flex flex-col items-center pointer-events-auto"
+            >
               {/* Top Invocation text above seal */}
               <motion.div
                 initial={{ opacity: 0, y: -15 }}
@@ -427,7 +455,7 @@ export const TempleDoor: React.FC<TempleDoorProps> = ({
                   <span>दार उघडण्यासाठी टॅप करा • Tap to Open</span>
                 </button>
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

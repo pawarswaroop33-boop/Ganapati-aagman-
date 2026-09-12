@@ -61,6 +61,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
   const [activeTab, setActiveTab] = useState<'door' | 'photos' | 'family' | 'details'>(initialTab);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('');
+  const [newMemberPhotoUrl, setNewMemberPhotoUrl] = useState('');
   const [isCompressing, setIsCompressing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -108,6 +109,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
       id: Date.now().toString(),
       name: newMemberName.trim(),
       relation: newMemberRelation.trim() || 'कुटुंब सदस्य',
+      photoUrl: newMemberPhotoUrl.trim() || undefined,
     };
     setFormData((prev) => ({
       ...prev,
@@ -115,6 +117,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
     }));
     setNewMemberName('');
     setNewMemberRelation('');
+    setNewMemberPhotoUrl('');
   };
 
   const handleRemoveMember = (id: string) => {
@@ -124,11 +127,25 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
     }));
   };
 
-  const handleMemberChange = (id: string, name: string, relation: string) => {
+  const handleMemberChange = (
+    id: string,
+    name: string,
+    relation: string,
+    photoUrl?: string,
+    blessing?: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       familyMembers: prev.familyMembers.map((m) =>
-        m.id === id ? { ...m, name, relation } : m
+        m.id === id
+          ? {
+              ...m,
+              name,
+              relation,
+              photoUrl: photoUrl !== undefined ? photoUrl : m.photoUrl,
+              blessing: blessing !== undefined ? blessing : m.blessing,
+            }
+          : m
       ),
     }));
   };
@@ -630,36 +647,90 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                 {formData.familyMembers.map((member) => (
                   <div
                     key={member.id}
-                    className="p-2.5 rounded-xl bg-[#04120a] border border-amber-500/25 flex items-center justify-between gap-2"
+                    className="p-2.5 rounded-xl bg-[#04120a] border border-amber-500/25 space-y-2"
                   >
-                    <div className="flex-1 grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-9 h-11 rounded-lg overflow-hidden border border-amber-400/50 bg-stone-900 shrink-0">
+                        <img
+                          src={member.photoUrl || formData.inviterImageUrl}
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 grid grid-cols-2 gap-1.5">
+                        <input
+                          type="text"
+                          value={member.name}
+                          onChange={(e) =>
+                            handleMemberChange(
+                              member.id,
+                              e.target.value,
+                              member.relation,
+                              member.photoUrl,
+                              member.blessing
+                            )
+                          }
+                          placeholder="नाव (उदा. सौ. सुवर्णा देशपांडे)"
+                          className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-white text-xs focus:outline-none focus:border-amber-400"
+                        />
+                        <input
+                          type="text"
+                          value={member.relation}
+                          onChange={(e) =>
+                            handleMemberChange(
+                              member.id,
+                              member.name,
+                              e.target.value,
+                              member.photoUrl,
+                              member.blessing
+                            )
+                          }
+                          placeholder="पद / नाते (उदा. कुटुंबप्रमुख)"
+                          className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-amber-300 text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMember(member.id)}
+                        className="p-1.5 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-500/10 transition"
+                        title="हटवा"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {/* Member photo URL & blessing quote */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       <input
                         type="text"
-                        value={member.name}
+                        value={member.photoUrl || ''}
                         onChange={(e) =>
-                          handleMemberChange(member.id, e.target.value, member.relation)
+                          handleMemberChange(
+                            member.id,
+                            member.name,
+                            member.relation,
+                            e.target.value,
+                            member.blessing
+                          )
                         }
-                        placeholder="नाव (उदा. श्री. राजेश देशपांडे)"
-                        className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-white text-xs focus:outline-none focus:border-amber-400"
+                        placeholder="फोटो URL (ऐच्छिक)"
+                        className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-stone-300 text-[10px] focus:outline-none focus:border-amber-400 truncate"
                       />
                       <input
                         type="text"
-                        value={member.relation}
+                        value={member.blessing || ''}
                         onChange={(e) =>
-                          handleMemberChange(member.id, member.name, e.target.value)
+                          handleMemberChange(
+                            member.id,
+                            member.name,
+                            member.relation,
+                            member.photoUrl,
+                            e.target.value
+                          )
                         }
-                        placeholder="पद / नाते (उदा. कुटुंबप्रमुख)"
-                        className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-amber-300 text-xs focus:outline-none focus:border-amber-400"
+                        placeholder="शुभेच्छा संदेश (उदा. स्वागतम्)"
+                        className="px-2 py-1 rounded-lg bg-[#071a10] border border-stone-800 text-amber-200/80 text-[10px] focus:outline-none focus:border-amber-400 truncate"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMember(member.id)}
-                      className="p-1.5 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-500/10 transition"
-                      title="हटवा"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -674,17 +745,24 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
                     type="text"
                     value={newMemberName}
                     onChange={(e) => setNewMemberName(e.target.value)}
-                    placeholder="सदस्याचे पूर्ण नाव (उदा. सौ. सुवर्णा देशपांडे)"
+                    placeholder="सदस्याचे पूर्ण नाव"
                     className="px-2.5 py-1.5 rounded-xl bg-[#04120a] border border-amber-500/30 text-white text-xs focus:outline-none focus:border-amber-400"
                   />
                   <input
                     type="text"
                     value={newMemberRelation}
                     onChange={(e) => setNewMemberRelation(e.target.value)}
-                    placeholder="नाते / शीर्षक (उदा. सहधर्मचारिणी)"
+                    placeholder="नाते / शीर्षक (उदा. कन्या)"
                     className="px-2.5 py-1.5 rounded-xl bg-[#04120a] border border-amber-500/30 text-white text-xs focus:outline-none focus:border-amber-400"
                   />
                 </div>
+                <input
+                  type="text"
+                  value={newMemberPhotoUrl}
+                  onChange={(e) => setNewMemberPhotoUrl(e.target.value)}
+                  placeholder="सदस्याचा फोटो URL (उदा. https://... ऐच्छिक)"
+                  className="w-full px-2.5 py-1.5 rounded-xl bg-[#04120a] border border-amber-500/30 text-stone-300 text-xs focus:outline-none focus:border-amber-400"
+                />
                 <button
                   type="button"
                   onClick={handleAddMember}

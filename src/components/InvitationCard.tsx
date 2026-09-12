@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { InvitationDetails } from '../types';
 import { templeAudio } from '../utils/audio';
+import { FamilyCarousel } from './FamilyCarousel';
 
 interface InvitationCardProps {
   data: InvitationDetails;
@@ -190,12 +191,12 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       <main className="w-full max-w-md px-3.5 sm:px-4 pt-3.5 space-y-7">
         {/* ============================================================ */}
         {/* SECTION 1: HERO COVER WITH BAPPA'S IMAGE (1st Image)        */}
-        {/* Clear on load so the user sees it immediately after doors    */}
+        {/* Smooth Blur-to-Clear as doors part                           */}
         {/* ============================================================ */}
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 15, filter: 'blur(16px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#082215] via-[#05190f] to-[#04120a] border-2 border-[#d4af37]/50 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-center p-4 sm:p-5 pt-6 will-change-transform"
         >
           {/* Subtle golden ambient glow */}
@@ -312,8 +313,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         </motion.section>
 
         {/* ============================================================ */}
-        {/* SECTION 3: INVITATOR'S IMAGE & ALL FAMILY MEMBERS BELOW IT   */}
-        {/* (Smooth Blur-to-Clear as reached during scrolling)           */}
+        {/* SECTION 3: INVITATORS' SLIDING PHOTO GALLERY & FAMILY MEMBERS */}
+        {/* (Smooth Blur-to-Clear with Interactive Page Slider)          */}
         {/* ============================================================ */}
         <motion.section
           variants={upcomingBlurVariant}
@@ -326,77 +327,23 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           <div className="flex items-center justify-center gap-2 mb-1.5">
             <Users className="w-4 h-4 text-amber-400" />
             <span className="text-xs font-serif font-bold text-amber-300 tracking-wider">
-              || निमंत्रक ||
+              || निमंत्रक व परिवार ||
             </span>
           </div>
 
-          <h2 className="text-xl font-bold font-serif text-white mb-3.5">
+          <h2 className="text-xl font-bold font-serif text-white mb-1">
             आपले नम्र निमंत्रक
           </h2>
+          <p className="text-[11px] text-amber-200/75 font-serif mb-3.5">
+            परिवारातील सदस्यांचे फोटो व नावे पाहण्यासाठी डावीकडे/उजवीकडे स्वाइप करा
+          </p>
 
-          {/* 2nd IMAGE: INVITATOR'S / FAMILY PHOTO */}
-          <div className="relative mx-auto max-w-[240px] mb-4">
-            <div className="rounded-2xl p-2 bg-gradient-to-tr from-amber-600/70 via-[#ffd700] to-amber-700/70 shadow-[0_0_25px_rgba(212,175,55,0.35)]">
-              <div className="rounded-xl overflow-hidden aspect-[3/4] bg-stone-900 relative group">
-                <img
-                  src={data.inviterImageUrl}
-                  alt={data.hostName}
-                  className="w-full h-full object-cover object-top transform transition duration-500 group-hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80';
-                  }}
-                />
-                {/* Subtle gradient vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
-
-                {/* Host label */}
-                <div className="absolute bottom-2 inset-x-2 text-center">
-                  <span className="text-[10px] text-amber-200 font-serif font-bold bg-black/70 px-2.5 py-1 rounded-full backdrop-blur-sm border border-amber-400/30">
-                    {data.hostName} (निमंत्रक)
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ALL FAMILY MEMBERS LISTED DIRECTLY BELOW INVITATOR'S IMAGE */}
-          <div className="pt-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-serif font-bold mb-3">
-              <Flower2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>कुटुंबातील सर्व सदस्य</span>
-            </div>
-
-            {/* List of All Family Members */}
-            <div className="space-y-2 text-left">
-              {data.familyMembers.map((member, idx) => (
-                <div
-                  key={member.id || idx}
-                  className="p-2.5 rounded-xl bg-[#04120a]/90 border border-amber-500/25 flex items-center justify-between gap-2 hover:border-amber-500/40 transition shadow-sm"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-[11px] font-bold shrink-0">
-                      {idx + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold font-serif text-white tracking-wide truncate">
-                        {member.name}
-                      </p>
-                      {member.blessing && (
-                        <p className="text-[10px] text-stone-300 font-serif italic truncate">
-                          "{member.blessing}"
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] sm:text-[11px] text-amber-300 font-serif bg-amber-950/70 border border-amber-500/30 px-2 py-0.5 rounded-lg shrink-0 font-medium">
-                    {member.relation}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Interactive Sliding Family Carousel */}
+          <FamilyCarousel
+            hostName={data.hostName}
+            defaultInviterImage={data.inviterImageUrl}
+            familyMembers={data.familyMembers}
+          />
         </motion.section>
 
         {/* ============================================================ */}

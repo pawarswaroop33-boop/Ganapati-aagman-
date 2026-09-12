@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { TempleDoor } from './components/TempleDoor';
 import { InvitationCard } from './components/InvitationCard';
 import { PetalCanvas } from './components/PetalCanvas';
@@ -11,6 +12,7 @@ import { subscribeToInvitation, saveInvitation } from './utils/firebase';
 export default function App() {
   // Start with closed temple door just like in the video at 00:00
   const [isOpenDoor, setIsOpenDoor] = useState(false);
+  const [isDoorOpening, setIsDoorOpening] = useState(false);
   const [data, setData] = useState<InvitationDetails>(defaultInvitationData);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [customizeTab, setCustomizeTab] = useState<'door' | 'photos' | 'family' | 'details'>('door');
@@ -83,6 +85,7 @@ export default function App() {
 
   const handleOpenDoor = () => {
     setIsOpenDoor(true);
+    setIsDoorOpening(false);
   };
 
   const handleShowerPetals = () => {
@@ -130,17 +133,25 @@ export default function App() {
       <TempleDoor
         isOpen={isOpenDoor}
         onOpen={handleOpenDoor}
+        onOpeningStart={() => setIsDoorOpening(true)}
         onShower={handleShowerPetals}
         familyHeading={data.familyHeading}
         familyName={data.familyName}
         onOpenCustomize={handleOpenCustomizeWithTab}
       />
 
-      {/* Main Mobile-Optimized Invitation View (Locked to 1 screen when door is closed) */}
-      <div
+      {/* Main Mobile-Optimized Invitation View with Blurry-to-Clear Reveal */}
+      <motion.div
         className={`w-full flex justify-center ${
           !isOpenDoor ? 'h-screen max-h-screen overflow-hidden pointer-events-none select-none' : ''
         }`}
+        initial={{ filter: 'blur(24px)', opacity: 0.2, scale: 0.95 }}
+        animate={
+          isOpenDoor || isDoorOpening
+            ? { filter: 'blur(0px)', opacity: 1, scale: 1 }
+            : { filter: 'blur(24px)', opacity: 0.2, scale: 0.95 }
+        }
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <InvitationCard
           data={data}
@@ -148,12 +159,13 @@ export default function App() {
           isSavedInCloud={isSavedInCloud}
           onReopenDoors={() => {
             window.scrollTo(0, 0);
+            setIsDoorOpening(false);
             setIsOpenDoor(false);
           }}
           onOpenCustomize={handleOpenCustomizeWithTab}
           onShowerPetals={handleShowerPetals}
         />
-      </div>
+      </motion.div>
 
       {/* Password Verification Modal to Protect Settings */}
       <PasswordModal
